@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
-mongoose.set("debug", true);
+if (process.env.NODE_ENV !== "test") mongoose.set("debug", true);
 mongoose.connect(process.env.DB, {
-	useNewUrlParser: true,
-	useCreateIndex: true
+   useNewUrlParser: true,
+   useCreateIndex: true
 });
 mongoose.promise = Promise;
 
