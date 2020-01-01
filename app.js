@@ -40,7 +40,7 @@ app.get("*", (req, res, next) => {
 app.use((error, req, res, next) => {
    let errorResponse;
 
-   if (!error.status) error = errorHandler(500, "Internal Server Error");
+   if (!error.status) error = errorHandler();
    errorResponse = { message: error.message };
 
    console.error(errorResponse);
