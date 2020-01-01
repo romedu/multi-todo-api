@@ -40,10 +40,10 @@ app.get("*", (req, res, next) => {
 app.use((error, req, res, next) => {
    let errorResponse;
 
+   console.error(errorResponse);
    if (!error.status) error = errorHandler();
    errorResponse = { message: error.message };
 
-   console.error(errorResponse);
    return res.status(error.status).json(errorResponse);
 });
 
