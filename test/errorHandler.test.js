@@ -1,5 +1,5 @@
 const { STATUS_CODES } = require("http"),
-   { errorHandler } = require("../helpers/error");
+   { errorHandler } = require("../src/helpers/error");
 
 describe("Error handler", () => {
    const defaultErrorStatusCode = 500,

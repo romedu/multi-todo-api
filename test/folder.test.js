@@ -1,6 +1,6 @@
 const request = require("supertest"),
    mongoose = require("mongoose"),
-   app = require("../app");
+   app = require("../src/app");
 
 describe("Folder routes", () => {
    const baseUrl = "/api/folder";
