@@ -43,8 +43,8 @@ describe("Register route", () => {
 
    describe("Post request", () => {
       const validTestUserData = {
-         username: `testUsername28`,
-         password: `testPassword14`
+         username: "testUsername",
+         password: "testPassword"
       };
 
       describe("Sending valid data", () => {
@@ -113,7 +113,7 @@ describe("Register route", () => {
             });
 
             describe("Passing an invalid string as password", () => {
-               it("should return a status of 422", async () => {
+               it("should return a status of 422", async done => {
                   const testUserData = {
                      ...validTestUserData,
                      password: "X"
