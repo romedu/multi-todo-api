@@ -41,7 +41,7 @@ app.get("*", (req, res, next) => {
 app.use((error, req, res, next) => {
    let errorResponse;
 
-   if (!isTestingEnv) console.error(errorResponse);
+   if (!isTestingEnv) console.error(error);
    if (!error.status) error = errorHandler();
    errorResponse = { message: error.message };
 
