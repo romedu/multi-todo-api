@@ -1,3 +1,5 @@
+if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "ci") require("dotenv").config();
+
 const express = require("express"),
    app = express(),
    cors = require("cors"),
@@ -13,8 +15,6 @@ const express = require("express"),
    { checkIfToken, serializeBody, todos } = require("./middlewares"),
    { errorHandler } = require("./helpers/error"),
    { NODE_ENV } = process.env;
-
-if (NODE_ENV !== "production" && NODE_ENV !== "ci") require("dotenv").config();
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
