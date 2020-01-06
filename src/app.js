@@ -1,3 +1,5 @@
+if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "ci") require("dotenv").config();
+
 const express = require("express"),
    app = express(),
    cors = require("cors"),
@@ -12,27 +14,25 @@ const express = require("express"),
    } = require("./routes"),
    { checkIfToken, serializeBody, todos } = require("./middlewares"),
    { errorHandler } = require("./helpers/error"),
-   { NODE_ENV } = process.env;
-
-if (NODE_ENV !== "production" && NODE_ENV !== "ci") require("dotenv").config();
+   isTestingEnv = process.env.NODE_ENV === "test";
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json({ urlencoded: true }));
 app.use(serializeBody);
-app.use(morgan("tiny"));
+if (!isTestingEnv) app.use(morgan("tiny"));
 
 app.use("/api/auth", authRoutes);
-app.use("/api", checkIfToken);
 app.use(
    "/api/todos/:id/todo",
+   checkIfToken,
    todos.getCurrentList,
    todos.checkPermission,
    todoRoutes
 );
-app.use("/api/todos", todoListRoutes);
-app.use("/api/folder", folderRoutes);
-app.use("/api/services", servicesRoutes);
+app.use("/api/todos", checkIfToken, todoListRoutes);
+app.use("/api/folder", checkIfToken, folderRoutes);
+app.use("/api/services", checkIfToken, servicesRoutes);
 app.get("*", (req, res, next) => {
    const notFoundError = errorHandler(404, "Route not found")
    next(notFoundError);
@@ -41,7 +41,7 @@ app.get("*", (req, res, next) => {
 app.use((error, req, res, next) => {
    let errorResponse;
 
-   console.error(errorResponse);
+   if (!isTestingEnv) console.error(error);
    if (!error.status) error = errorHandler();
    errorResponse = { message: error.message };
 
