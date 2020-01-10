@@ -1,13 +1,13 @@
 const request = require("supertest"),
-   mongoose = require("mongoose"),
-   app = require("../src/app");
+   app = require("../../src/app");
 
 exports.createTestUser = async () => {
    const testUserData = {
       username: "newTestUsername",
       password: "testPassword"
    },
-      { body: newUserData } = await request(app).post(baseUrl).send(testUserData);
+      registerRouteUrl = "/api/auth/register",
+      { body: newUserData } = await request(app).post(registerRouteUrl).send(testUserData);
 
    return newUserData;
 };
