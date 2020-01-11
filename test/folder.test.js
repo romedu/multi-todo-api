@@ -73,6 +73,93 @@ describe("Folder routes", () => {
 
                   expect(isNewFolderSaved).toBeTruthy();
                });
+
+               it("should return a name property with the same value as the one passed", () => {
+                  expect(response.body.name).toBe(testFolderData.name);
+               });
+
+               it("should return a description property with the same value as the one passed", () => {
+                  expect(response.body.description).toBe(testFolderData.description);
+               });
+
+               it("should return a files property as an empty array", () => {
+                  expect(response.body.files).toEqual([]);
+               });
+
+               it("should return a creator property with the same value as the current user id", () => {
+                  expect(response.body.creator).toBe(userData.id);
+               });
+            });
+
+            describe("Sending invalid data", () => {
+               describe("Passing none of the inputs", () => {
+                  const testFolderData = {};
+                  let response;
+
+                  beforeAll(async () => {
+                     const { token: authorizationToken } = userData;
+                     response = await request(app).post(baseUrl).set("Authorization", authorizationToken).send(testFolderData);
+                  });
+
+                  it("should return a status of 422", () => {
+                     expect(response.status).toBe(422);
+                  });
+               });
+
+               describe("Sending one of the inputs invalid", () => {
+                  describe("Passing the name input invalid", () => {
+                     const testFolderData = {
+                        name: "X"
+                     };
+
+                     let response;
+
+                     beforeAll(async () => {
+                        const { token: authorizationToken } = userData;
+                        response = await request(app).post(baseUrl).set("Authorization", authorizationToken).send(testFolderData);
+                     });
+
+                     it("should return a status of 422", () => {
+                        expect(response.status).toBe(422);
+                     });
+                  });
+
+                  describe("Passing the description input invalid", () => {
+                     const testFolderData = {
+                        name: "folderName",
+                        description: "123456789123456789123456789123456789456123456789456"
+                     };
+
+                     let response;
+
+                     beforeAll(async () => {
+                        const { token: authorizationToken } = userData;
+                        response = await request(app).post(baseUrl).set("Authorization", authorizationToken).send(testFolderData);
+                     });
+
+                     it("should return a status of 422", () => {
+                        expect(response.status).toBe(422);
+                     });
+                  });
+               });
+
+               describe("Sending both of the inputs invalid", () => {
+                  const testFolderData = {
+                     name: "X",
+                     description: "123456789123456789123456789123456789456123456789456"
+                  };
+
+                  let response;
+
+                  beforeAll(async () => {
+                     const { token: authorizationToken } = userData;
+                     response = await request(app).post(baseUrl).set("Authorization", authorizationToken).send(testFolderData);
+                  });
+
+                  it("should return a status of 422", () => {
+                     expect(response.status).toBe(422);
+                  });
+               });
             });
          });
       });
