@@ -186,6 +186,36 @@ describe("Folder routes", () => {
                });
             });
          });
+
+         describe("Put request", () => {
+            it("should return a status of 404", async done => {
+               const { token: authorizationToken } = userData,
+                  response = await request(app).put(baseUrl).set("Authorization", authorizationToken);
+
+               expect(response.status).toBe(404);
+               done();
+            });
+         });
+
+         describe("Patch request", () => {
+            it("should return a status of 404", async done => {
+               const { token: authorizationToken } = userData,
+                  response = await request(app).patch(baseUrl).set("Authorization", authorizationToken);
+
+               expect(response.status).toBe(404);
+               done();
+            });
+         });
+
+         describe("Delete request", () => {
+            it("should return a status of 404", async done => {
+               const { token: authorizationToken } = userData,
+                  response = await request(app).delete(baseUrl).set("Authorization", authorizationToken);
+
+               expect(response.status).toBe(404);
+               done();
+            });
+         });
       });
 
       describe("Unauthorized requests", () => {
