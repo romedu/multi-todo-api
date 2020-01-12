@@ -1,8 +1,9 @@
 const mongoosePaginate = require("mongoose-paginate"),
-      validator = require("../helpers/validator");
+   validator = require("../helpers/validator");
 
 const mongoose = require("mongoose"),
-      folderSchema = new mongoose.Schema({
+   folderSchema = new mongoose.Schema(
+      {
          name: {
             type: String,
             unique: true,
@@ -17,7 +18,7 @@ const mongoose = require("mongoose"),
          description: {
             type: String,
             maxlength: [45, "The maximun number of characters allowed is 45"]
-         }, 
+         },
          image: String,
          files: [
             {
@@ -30,7 +31,17 @@ const mongoose = require("mongoose"),
             ref: "User"
          }
       },
-      {timestamps: true});
+      { timestamps: true }
+   );
+
+// Makes sure that when converting folder data to json the _id property name changes to id
+folderSchema.set("toJSON", {
+   virtuals: true,
+   versionKey: false,
+   transform: function (doc, ret) {
+      delete ret._id;
+   }
+});
 
 folderSchema.plugin(mongoosePaginate);
 
