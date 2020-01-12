@@ -89,6 +89,10 @@ describe("Folder routes", () => {
                it("should return a creator property with the same value as the current user id", () => {
                   expect(response.body.creator).toBe(userData.id);
                });
+
+               it("should not return an errors property", () => {
+                  expect(response.body.errors).toBeUndefined();
+               });
             });
 
             describe("Sending invalid data", () => {
@@ -103,6 +107,11 @@ describe("Folder routes", () => {
 
                   it("should return a status of 422", () => {
                      expect(response.status).toBe(422);
+                  });
+
+                  it("should return an errors property with at least one element", () => {
+                     const errors = response.body.errors || [];
+                     expect(errors.length).toBeGreaterThanOrEqual(1);
                   });
                });
 
@@ -122,6 +131,11 @@ describe("Folder routes", () => {
                      it("should return a status of 422", () => {
                         expect(response.status).toBe(422);
                      });
+
+                     it("should return an errors property with at least one element", () => {
+                        const errors = response.body.errors || [];
+                        expect(errors.length).toBeGreaterThanOrEqual(1);
+                     });
                   });
 
                   describe("Passing the description input invalid", () => {
@@ -139,6 +153,11 @@ describe("Folder routes", () => {
 
                      it("should return a status of 422", () => {
                         expect(response.status).toBe(422);
+                     });
+
+                     it("should return an errors property with at least one element", () => {
+                        const errors = response.body.errors || [];
+                        expect(errors.length).toBeGreaterThanOrEqual(1);
                      });
                   });
                });
@@ -158,6 +177,11 @@ describe("Folder routes", () => {
 
                   it("should return a status of 422", () => {
                      expect(response.status).toBe(422);
+                  });
+
+                  it("should return an errors property with at least two elements", () => {
+                     const errors = response.body.errors || [];
+                     expect(errors.length).toBeGreaterThanOrEqual(2);
                   });
                });
             });
