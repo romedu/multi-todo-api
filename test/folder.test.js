@@ -205,7 +205,7 @@ describe("Folder routes", () => {
             });
          });
 
-         describe("Get request", () => {
+         describe("Patch request", () => {
             it("should return a status of 401", async done => {
                const response = await request(app).patch(baseUrl);
                expect(response.status).toBe(401);
@@ -213,7 +213,7 @@ describe("Folder routes", () => {
             });
          });
 
-         describe("Get request", () => {
+         describe("Delete request", () => {
             it("should return a status of 401", async done => {
                const response = await request(app).delete(baseUrl);
                expect(response.status).toBe(401);
