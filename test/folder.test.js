@@ -4,20 +4,27 @@ const request = require("supertest"),
    { createTestUser } = require("./utilities");
 
 describe("Folder routes", () => {
-   const baseUrl = "/api/folder";
+   const folderObjectSchema = {
+      id: expect.any(String),
+      name: expect.any(String),
+      files: expect.any(Array),
+      creator: expect.any(String)
+   };
+
+   let userData;
+
+   beforeAll(async () => {
+      userData = await createTestUser();
+   });
 
    afterAll(() => {
       mongoose.connection.close();
    });
 
-   describe("/folder", () => {
+   describe.skip("/folder", () => {
+      const baseUrl = "/api/folder";
+
       describe("Authorized requests", () => {
-         let userData;
-
-         beforeAll(async () => {
-            userData = await createTestUser();
-         });
-
          describe("Get request", () => {
             let response;
 
@@ -55,14 +62,7 @@ describe("Folder routes", () => {
                });
 
                it("should return a folder object", () => {
-                  const folderObject = {
-                     id: expect.any(String),
-                     name: expect.any(String),
-                     files: expect.any(Array),
-                     creator: expect.any(String)
-                  };
-
-                  expect(response.body).toEqual(expect.objectContaining(folderObject));
+                  expect(response.body).toEqual(expect.objectContaining(folderObjectSchema));
                });
 
                it("should save the new folder", async () => {
@@ -248,6 +248,138 @@ describe("Folder routes", () => {
                const response = await request(app).delete(baseUrl);
                expect(response.status).toBe(401);
                done();
+            });
+         });
+      });
+   });
+
+   describe("/folder/:id", () => {
+      describe("Requesting a valid folder id", () => {
+         let authorizationToken,
+            testFolder,
+            baseUrl;
+
+         beforeAll(async () => {
+            const rootUrl = "/api/folder",
+               testFolderData = {
+                  name: "folderName",
+                  description: "Test folder description"
+               },
+               newFolderResponse = await request(app).post(rootUrl).set("Authorization", userData.token).send(testFolderData);
+
+            authorizationToken = userData.token;
+            testFolder = newFolderResponse.body;
+            baseUrl = `/api/folder/${testFolder.id}`;
+         });
+
+         describe("Authorized requests", () => {
+            describe("Get request", () => {
+               let response;
+
+               beforeAll(async () => {
+                  response = await request(app).get(baseUrl).set("Authorization", authorizationToken);
+               })
+
+               it("should return a status of 200", () => {
+                  expect(response.status).toBe(200);
+               });
+
+               it("should return a folder object", () => {
+                  expect(response.body).toEqual(expect.objectContaining(folderObjectSchema));
+               });
+            });
+
+            describe("Post request", () => {
+               let response;
+
+               beforeAll(async () => {
+                  response = await request(app).post(baseUrl).set("Authorization", authorizationToken);
+               })
+
+               it("should return a status of 404", () => {
+                  expect(response.status).toBe(404);
+               });
+            });
+
+            describe("Patch request", () => {
+               describe("Sending valid data", () => {
+                  const updateData = {
+                     name: "updatedName"
+                  };
+
+                  let response;
+
+                  beforeAll(async () => {
+                     response = await request(app).patch(baseUrl).set("Authorization", authorizationToken).send(updateData);
+                  })
+
+                  it("should return a status of 200", () => {
+                     expect(response.status).toBe(200);
+                  });
+
+                  it("should return the folder with the updated data", () => {
+                     expect(response.body).toMatchObject(updateData);
+                  });
+               });
+
+               describe("Sending invalid data", () => {
+                  const updateData = {
+                     name: "X"
+                  };
+
+                  let response;
+
+                  beforeAll(async () => {
+                     response = await request(app).patch(baseUrl).set("Authorization", authorizationToken).send(updateData);
+                  })
+
+                  it("should return a status of 401", () => {
+                     expect(response.status).toBe(401);
+                  });
+
+                  it("should return an errors property with at least one element", () => {
+                     const errors = response.body.errors || [];
+                     expect(errors.length).toBeGreaterThanOrEqual(1);
+                  });
+
+                  it("should not return the folder with the updated data", () => {
+                     expect(response.body).not.toMatchObject(updateData);
+                  });
+               });
+            });
+         });
+
+         describe("Unauthorized requests", () => {
+            describe("Get request", () => {
+               it("should return a status of 401", async done => {
+                  const response = await request(app).get(baseUrl);
+                  expect(response.status).toBe(401);
+                  done();
+               });
+            });
+
+            describe("Post request", () => {
+               it("should return a status of 401", async done => {
+                  const response = await request(app).post(baseUrl);
+                  expect(response.status).toBe(401);
+                  done();
+               });
+            });
+
+            describe("Patch request", () => {
+               it("should return a status of 401", async done => {
+                  const response = await request(app).patch(baseUrl);
+                  expect(response.status).toBe(401);
+                  done();
+               });
+            });
+
+            describe("Delete request", () => {
+               it("should return a status of 401", async done => {
+                  const response = await request(app).delete(baseUrl);
+                  expect(response.status).toBe(401);
+                  done();
+               });
             });
          });
       });
