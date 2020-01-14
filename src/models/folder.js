@@ -34,15 +34,6 @@ const mongoose = require("mongoose"),
       { timestamps: true }
    );
 
-// Makes sure that when converting folder data to json the _id property name changes to id
-folderSchema.set("toJSON", {
-   virtuals: true,
-   versionKey: false,
-   transform: function (doc, ret) {
-      delete ret._id;
-   }
-});
-
 folderSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("Folder", folderSchema);
