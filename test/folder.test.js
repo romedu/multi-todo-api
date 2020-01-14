@@ -14,14 +14,19 @@ describe("Folder routes", () => {
    let userData;
 
    beforeAll(async () => {
-      userData = await createTestUser();
+      const testUserCredentials = {
+         username: "newTestUsename",
+         password: "testPassword"
+      };
+
+      userData = await createTestUser(testUserCredentials);
    });
 
    afterAll(() => {
       mongoose.connection.close();
    });
 
-   describe.skip("/folder", () => {
+   describe("/folder", () => {
       const baseUrl = "/api/folder";
 
       describe("Authorized requests", () => {
@@ -272,6 +277,95 @@ describe("Folder routes", () => {
             baseUrl = `/api/folder/${testFolder.id}`;
          });
 
+         describe("Unauthorized requests", () => {
+            describe("Not passing any auth token", () => {
+               describe("Get request", () => {
+                  it("should return a status of 401", async done => {
+                     const response = await request(app).get(baseUrl);
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+
+               describe("Post request", () => {
+                  it("should return a status of 401", async done => {
+                     const response = await request(app).post(baseUrl);
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+
+               describe("Patch request", () => {
+                  it("should return a status of 401", async done => {
+                     const response = await request(app).patch(baseUrl);
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+
+               describe("Delete request", () => {
+                  it("should return a status of 401", async done => {
+                     const response = await request(app).delete(baseUrl);
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+            });
+
+            describe("Using a different user's auth token", () => {
+               let intruderUserData;
+
+               beforeAll(async () => {
+                  const intruderUserCredentials = {
+                     username: "intruderUsername",
+                     password: "intruderPassword"
+                  };
+
+                  intruderUserData = await createTestUser(intruderUserCredentials);
+               });
+
+               describe("Get request", () => {
+                  it("should return a status of 401", async done => {
+                     const { token: invalidAuthToken } = intruderUserData,
+                        response = await request(app).get(baseUrl).set("Authorization", invalidAuthToken);
+
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+
+               describe("Post request", () => {
+                  it("should return a status of 401", async done => {
+                     const { token: invalidAuthToken } = intruderUserData,
+                        response = await request(app).post(baseUrl).set("Authorization", invalidAuthToken);
+
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+
+               describe("Patch request", () => {
+                  it("should return a status of 401", async done => {
+                     const { token: invalidAuthToken } = intruderUserData,
+                        response = await request(app).patch(baseUrl).set("Authorization", invalidAuthToken);
+
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+
+               describe("Delete request", () => {
+                  it("should return a status of 401", async done => {
+                     const { token: invalidAuthToken } = intruderUserData,
+                        response = await request(app).delete(baseUrl).set("Authorization", invalidAuthToken);
+
+                     expect(response.status).toBe(401);
+                     done();
+                  });
+               });
+            });
+         });
+
          describe("Authorized requests", () => {
             describe("Get request", () => {
                let response;
@@ -311,7 +405,7 @@ describe("Folder routes", () => {
 
                   beforeAll(async () => {
                      response = await request(app).patch(baseUrl).set("Authorization", authorizationToken).send(updateData);
-                  })
+                  });
 
                   it("should return a status of 200", () => {
                      expect(response.status).toBe(200);
@@ -347,37 +441,25 @@ describe("Folder routes", () => {
                   });
                });
             });
-         });
-
-         describe("Unauthorized requests", () => {
-            describe("Get request", () => {
-               it("should return a status of 401", async done => {
-                  const response = await request(app).get(baseUrl);
-                  expect(response.status).toBe(401);
-                  done();
-               });
-            });
-
-            describe("Post request", () => {
-               it("should return a status of 401", async done => {
-                  const response = await request(app).post(baseUrl);
-                  expect(response.status).toBe(401);
-                  done();
-               });
-            });
-
-            describe("Patch request", () => {
-               it("should return a status of 401", async done => {
-                  const response = await request(app).patch(baseUrl);
-                  expect(response.status).toBe(401);
-                  done();
-               });
-            });
 
             describe("Delete request", () => {
-               it("should return a status of 401", async done => {
-                  const response = await request(app).delete(baseUrl);
-                  expect(response.status).toBe(401);
+               let response;
+
+               beforeAll(async () => {
+                  response = await request(app).delete(baseUrl).set("Authorization", authorizationToken);
+               });
+
+               it("should return a status of 200", () => {
+                  expect(response.status).toBe(200);
+               });
+
+               it("should return a success message", () => {
+                  expect(response.body.message).toBeDefined();
+               });
+
+               it("should remove the resource", async done => {
+                  const folderQueryResponse = await request(app).get(baseUrl).set("Authorization", authorizationToken);
+                  expect(folderQueryResponse.status).toBe(404);
                   done();
                });
             });
