@@ -5,7 +5,7 @@ const request = require("supertest"),
 
 describe("Folder routes", () => {
    const folderObjectSchema = {
-      id: expect.any(String),
+      _id: expect.any(String),
       name: expect.any(String),
       files: expect.any(Array),
       creator: expect.any(String)
@@ -427,8 +427,8 @@ describe("Folder routes", () => {
                      response = await request(app).patch(baseUrl).set("Authorization", authorizationToken).send(updateData);
                   })
 
-                  it("should return a status of 401", () => {
-                     expect(response.status).toBe(401);
+                  it("should return a status of 422", () => {
+                     expect(response.status).toBe(422);
                   });
 
                   it("should return an errors property with at least one element", () => {
