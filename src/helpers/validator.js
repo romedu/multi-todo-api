@@ -25,4 +25,23 @@ exports.userValidators = [
    check("password", "Password must contain between 8 and 24 characters").isLength({ min: 8, max: 24 }),
 ];
 
+exports.createFolderValidators = [
+   check("name", "Name is required").exists({ checkFalsy: true, checkNull: true }),
+   check("name", "Name must be a string").isString(),
+   check("name", "Name must contain between 3 and 14 characters").isLength({ min: 3, max: 14 }),
+   check("name", "Name must only contain only alphanumeric characters").isAlphanumeric(),
+   check("description", "Description must be a string").isString().optional(),
+   check("description", "Description must contain a maximum of 45 characters").isLength({ max: 45 }),
+   check("image", "Image must be a string").isString().optional()
+];
+
+exports.updateFolderValidators = [
+   check("name", "Name must be a string").isString().optional(),
+   check("name", "Name must contain between 3 and 14 characters").isLength({ min: 3, max: 14 }),
+   check("name", "Name must only contain only alphanumeric characters").isAlphanumeric(),
+   check("description", "Description must be a string").isString().optional(),
+   check("description", "Description must contain a maximum of 45 characters").isLength({ max: 45 }),
+   check("image", "Image must be a string").isString().optional()
+];
+
 module.exports = exports;
