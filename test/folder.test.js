@@ -15,7 +15,7 @@ describe("Folder routes", () => {
 
    beforeAll(async () => {
       const testUserCredentials = {
-         username: "newTestUsename",
+         username: "newTestUsername",
          password: "testPassword"
       };
 
@@ -467,7 +467,7 @@ describe("Folder routes", () => {
       });
 
       describe("Requesting an invalid folder id", () => {
-         const baseUrl = "/api/folder/thisIsNotAnID";
+         const baseUrl = "/api/folder/invalidID123";
 
          let authorizationToken;
 
