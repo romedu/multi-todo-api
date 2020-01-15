@@ -465,5 +465,51 @@ describe("Folder routes", () => {
             });
          });
       });
+
+      describe("Requesting an invalid folder id", () => {
+         const baseUrl = "/api/folder/thisIsNotAnID";
+
+         let authorizationToken;
+
+         beforeAll(() => {
+            authorizationToken = userData.token;
+         })
+
+         describe("Get request", () => {
+            it("should return a status of 404", async done => {
+               const response = await request(app).get(baseUrl).set("Authorization", authorizationToken);
+
+               expect(response.status).toBe(404);
+               done();
+            });
+         });
+
+         describe("Post request", () => {
+            it("should return a status of 404", async done => {
+               const response = await request(app).post(baseUrl).set("Authorization", authorizationToken);
+
+               expect(response.status).toBe(404);
+               done();
+            });
+         });
+
+         describe("Patch request", () => {
+            it("should return a status of 404", async done => {
+               const response = await request(app).patch(baseUrl).set("Authorization", authorizationToken);
+
+               expect(response.status).toBe(404);
+               done();
+            });
+         });
+
+         describe("Delete request", () => {
+            it("should return a status of 404", async done => {
+               const response = await request(app).delete(baseUrl).set("Authorization", authorizationToken);
+
+               expect(response.status).toBe(404);
+               done();
+            });
+         });
+      });
    });
 });
