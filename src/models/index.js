@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 if (process.env.NODE_ENV !== "test") mongoose.set("debug", true);
 mongoose.connect(process.env.DB, {
    useNewUrlParser: true,
-   useCreateIndex: true
+   useCreateIndex: true,
+   useUnifiedTopology: true
 });
 mongoose.promise = Promise;
 
