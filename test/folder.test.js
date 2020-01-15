@@ -274,7 +274,7 @@ describe("Folder routes", () => {
 
             authorizationToken = userData.token;
             testFolder = newFolderResponse.body;
-            baseUrl = `/api/folder/${testFolder.id}`;
+            baseUrl = `/api/folder/${testFolder._id}`;
          });
 
          describe("Unauthorized requests", () => {
