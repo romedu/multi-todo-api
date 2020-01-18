@@ -1,11 +1,13 @@
 const request = require("supertest"),
    mongoose = require("mongoose"),
-   app = require("../src/app");
+   app = require("../src/app"),
+   {deleteAllUsers} = require("./utilities");
 
 describe("Register route", () => {
    const baseUrl = "/api/auth/register";
 
-   afterAll(() => {
+   afterAll(async () => {
+      await deleteAllUsers();
       mongoose.connection.close();
    });
 
