@@ -1,13 +1,8 @@
 const request = require("supertest"),
-   mongoose = require("mongoose"),
    app = require("../src/app");
 
 describe("Register route", () => {
    const baseUrl = "/api/auth/register";
-
-   afterAll(() => {
-      mongoose.connection.close();
-   });
 
    describe("Get request", () => {
       it("should return a status of 404", async done => {

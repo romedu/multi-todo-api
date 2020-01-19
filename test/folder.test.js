@@ -1,5 +1,4 @@
 const request = require("supertest"),
-   mongoose = require("mongoose"),
    app = require("../src/app"),
    { createTestUser } = require("./utilities");
 
@@ -15,15 +14,11 @@ describe("Folder routes", () => {
 
    beforeAll(async () => {
       const testUserCredentials = {
-         username: "newTestUsername",
-         password: "testPassword"
+         username: "folderTestUsername",
+         password: "folderTestPassword"
       };
 
       userData = await createTestUser(testUserCredentials);
-   });
-
-   afterAll(() => {
-      mongoose.connection.close();
    });
 
    describe("/folder", () => {
@@ -317,8 +312,8 @@ describe("Folder routes", () => {
 
                beforeAll(async () => {
                   const intruderUserCredentials = {
-                     username: "intruderUsername",
-                     password: "intruderPassword"
+                     username: "folderTestUsername2",
+                     password: "folderTestPassword2"
                   };
 
                   intruderUserData = await createTestUser(intruderUserCredentials);
