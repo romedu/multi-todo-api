@@ -1,15 +1,8 @@
 const request = require("supertest"),
-   mongoose = require("mongoose"),
-   app = require("../src/app"),
-   {deleteAllUsers} = require("./utilities");
+   app = require("../src/app");
 
 describe("Register route", () => {
    const baseUrl = "/api/auth/register";
-
-   afterAll(async () => {
-      await deleteAllUsers();
-      mongoose.connection.close();
-   });
 
    describe("Get request", () => {
       it("should return a status of 404", async done => {
