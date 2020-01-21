@@ -1,6 +1,6 @@
 const request = require("supertest"),
    app = require("../../src/app"),
-   { User, Folder } = require("../../src/models/index");
+   dbModels = require("../../src/models");
 
 exports.createTestUser = async testUserData => {
    const registerRouteUrl = "/api/auth/register",
@@ -10,11 +10,15 @@ exports.createTestUser = async testUserData => {
 };
 
 exports.deleteAllUsers = async () => {
-   await User.deleteMany({});
+   await dbModels.User.deleteMany({}).exec();
 }
 
 exports.deleteAllFolders = async () => {
-   await Folder.deleteMany({});
+   await dbModels.Folder.deleteMany({}).exec();
+}
+
+exports.deleteAllTodoLists = async () => {
+   await dbModels.TodoList.deleteMany({}).exec();
 }
 
 module.exports = exports;
