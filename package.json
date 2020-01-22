@@ -6,7 +6,7 @@
    "scripts": {
       "start": "node src/index.js",
       "dev": "nodemon src",
-      "test": "jest --detectOpenHandles"
+      "test": "jest --forceExit"
    },
    "author": "Roberto Meran",
    "license": "ISC",
