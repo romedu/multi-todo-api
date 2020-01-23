@@ -1,9 +1,10 @@
 const mongoose = require("mongoose"),
-   { deleteAllFolders, deleteAllUsers, deleteAllTodoLists } = require("./utilities");
+   testUtils = require("./utilities");
 
 module.exports = async () => {
-   await deleteAllTodoLists();
-   await deleteAllFolders();
-   await deleteAllUsers();
+   await testUtils.deleteAllTodos();
+   await testUtils.deleteAllTodoLists();
+   await testUtils.deleteAllFolders();
+   await testUtils.deleteAllUsers();
    await mongoose.connection.close();
 };

@@ -4,7 +4,8 @@ if (process.env.NODE_ENV !== "test") mongoose.set("debug", true);
 mongoose.connect(process.env.DB, {
    useNewUrlParser: true,
    useCreateIndex: true,
-   useUnifiedTopology: true
+   useUnifiedTopology: true,
+   useFindAndModify: false
 });
 mongoose.promise = Promise;
 
