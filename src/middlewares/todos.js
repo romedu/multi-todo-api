@@ -1,4 +1,4 @@
-const { TodoList, Folder } = require("../models"),
+const { TodoList, Folder, Todo } = require("../models"),
    { errorHandler } = require("../helpers/error");
 
 exports.getCurrentList = async (req, res, next) => {
@@ -12,6 +12,18 @@ exports.getCurrentList = async (req, res, next) => {
       return next(error);
    }
 };
+
+exports.getCurrentTodo = async (req, res, next) => {
+   try {
+      const foundTodo = await Todo.findById(req.params.todoId);
+
+      if (!foundTodo) throw errorHandler(404, "Not Found");
+      req.locals.currentTodo = foundTodo;
+      next();
+   } catch (error) {
+      return next(error);
+   }
+}
 
 // Validates that the currentUser is either an admin or the currentList owner
 exports.checkPermission = async (req, res, next) => {
