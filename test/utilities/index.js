@@ -21,4 +21,8 @@ exports.deleteAllTodoLists = async () => {
    await dbModels.TodoList.deleteMany({}).exec();
 }
 
+exports.deleteAllTodos = async () => {
+   await dbModels.Todo.deleteMany({}).exec();
+}
+
 module.exports = exports;
