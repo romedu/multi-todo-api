@@ -90,7 +90,7 @@ describe("Login route", () => {
                   response = await request(app).post(baseUrl).send(invalidUserData);
                });
 
-               it("should return a status of 401", async () => {
+               it("should return a status of 401", () => {
                   expect(response.status).toBe(401);
                });
             });
@@ -107,7 +107,7 @@ describe("Login route", () => {
                   response = await request(app).post(baseUrl).send(invalidUserData);
                });
 
-               it("should return a status of 401", async () => {
+               it("should return a status of 401", () => {
                   expect(response.status).toBe(401);
                });
             });
