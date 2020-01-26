@@ -1,18 +1,17 @@
 const router = require("express").Router(),
-   helpers = require("../helpers/folder"),
-   { folder } = require("../middlewares"),
-   { createFolderValidators, updateFolderValidators, confirmValidation } = require("../helpers/validator");
+	helpers = require("../helpers/folder"),
+	{ folderMiddlewares } = require("../middlewares");
 
 router
-   .route("/")
-   .get(helpers.find)
-   .post(createFolderValidators, confirmValidation, helpers.create);
+	.route("/")
+	.get(helpers.find)
+	.post(...folderMiddlewares.postMiddlewares, helpers.create);
 
 router
-   .route("/:id")
-   .all(folder.getCurrentFolder, folder.checkPermission)
-   .get(helpers.findOne)
-   .patch(updateFolderValidators, confirmValidation, helpers.update)
-   .delete(folder.ownerPrivileges, helpers.delete);
+	.route("/:id")
+	.all(...folderMiddlewares.idCommonMiddlewares)
+	.get(helpers.findOne)
+	.patch(...folderMiddlewares.idPatchMiddlewares, helpers.update)
+	.delete(...folderMiddlewares.idDeleteMiddlewares, helpers.delete);
 
 module.exports = router;
