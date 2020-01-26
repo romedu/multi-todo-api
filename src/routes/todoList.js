@@ -1,25 +1,23 @@
 const router = require("express").Router(),
-   helpers = require("../helpers/todoList"),
-   { todos } = require("../middlewares"),
-   { createTodoListValidators, updateTodoListValidators, confirmValidation } = require("../helpers/validator");
+	helpers = require("../helpers/todoList"),
+	{ todoListMiddlewares } = require("../middlewares");
 
 router
-   .route("/")
-   .get(helpers.find)
-   .post(todos.checkIfFolderOwner, createTodoListValidators, confirmValidation, helpers.create);
+	.route("/")
+	.get(helpers.find)
+	.post(...todoListMiddlewares.postMiddlewares, helpers.create);
 
 router
-   .route("/:id")
-   .all(todos.getCurrentList, todos.checkPermission)
-   .get(helpers.findOne)
-   .patch(todos.ownerOnly, todos.checkIfFolderOwner, updateTodoListValidators, confirmValidation, helpers.update)
-   .delete(todos.ownerPrivileges, helpers.delete);
+	.route("/:id")
+	.all(...todoListMiddlewares.idCommonMiddlewares)
+	.get(helpers.findOne)
+	.patch(...todoListMiddlewares.idPatchMiddlewares, helpers.update)
+	.delete(...todoListMiddlewares.idDeleteMiddlewares, helpers.delete);
 
 router.get(
-   "/:id/download",
-   todos.getCurrentList,
-   todos.checkPermission,
-   helpers.downloadFile
+	"/:id/download",
+	...todoListMiddlewares.idDownloadGetMiddlewares,
+	helpers.downloadFile
 );
 
 module.exports = router;

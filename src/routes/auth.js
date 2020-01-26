@@ -1,10 +1,19 @@
 const router = require("express").Router(),
-   helpers = require("../helpers/auth"),
-   { checkIfToken } = require("../middlewares"),
-   { userValidators, confirmValidation } = require("../helpers/validator");
+	helpers = require("../helpers/auth"),
+	{ authMiddlewares } = require("../middlewares");
 
-router.post("/register", userValidators, confirmValidation, helpers.register);
 router.post("/login", helpers.login);
-router.get("/verify", checkIfToken, helpers.verifyToken);
+
+router.post(
+	"/register",
+	...authMiddlewares.registerMiddlewares,
+	helpers.register
+);
+
+router.get(
+	"/verify",
+	...authMiddlewares.verifyMiddlewares,
+	helpers.verifyToken
+);
 
 module.exports = router;

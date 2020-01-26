@@ -1,15 +1,18 @@
 const router = require("express").Router({ mergeParams: true }),
-   helpers = require("../helpers/todo"),
-   { todos } = require("../middlewares"),
-   { createTodoValidators, updateTodoValidators, confirmValidation } = require("../helpers/validator");
+	helpers = require("../helpers/todo"),
+	{ todoMiddlewares } = require("../middlewares");
 
-router.route("/")
-   .get(helpers.find)
-   .post(createTodoValidators, confirmValidation, todos.ownerOnly, helpers.create);
+router
+	.route("/")
+	.all(...todoMiddlewares.commonMiddlewares)
+	.get(helpers.find)
+	.post(...todoMiddlewares.postMiddlewares, helpers.create);
 
-router.route("/:todoId")
-   .get(helpers.findOne)
-   .patch(updateTodoValidators, confirmValidation, todos.ownerOnly, todos.getCurrentTodo, helpers.update)
-   .delete(todos.ownerPrivileges, todos.getCurrentTodo, helpers.delete);
+router
+	.route("/:todoId")
+	.all(...todoMiddlewares.commonMiddlewares)
+	.get(todoMiddlewares.idGetMiddlewares, helpers.findOne)
+	.patch(...todoMiddlewares.idPatchMiddlewares, helpers.update)
+	.delete(...todoMiddlewares.idDeleteMiddlewares, helpers.delete);
 
 module.exports = router;
