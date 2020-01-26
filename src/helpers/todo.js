@@ -1,79 +1,82 @@
 const { Todo, TodoList } = require("../models"),
-   { errorHandler } = require("./error");
+	{ errorHandler } = require("./error");
 
 //Owner && Admins Only
 exports.find = async (req, res, next) => {
-   try {
-      const todos = await Todo.find({ container: req.params.id });
-      if (!todos) throw errorHandler(404, "Not Found");
-      return res.status(200).json(todos);
-   } catch (error) {
-      return next(error);
-   }
+	try {
+		const todos = await Todo.find({ container: req.params.id });
+		if (!todos) throw errorHandler(404, "Not Found");
+		return res.status(200).json(todos);
+	} catch (error) {
+		return next(error);
+	}
 };
 
 //Owner && Admins Only for non admin creators
 exports.create = async (req, res, next) => {
-   try {
-      const { currentList } = req.locals,
-         newTodo = await Todo.create(req.body);
+	try {
+		const { currentList } = req.locals,
+			newTodoData = {
+				...req.body,
+				container: currentList.id
+			},
+			newTodo = await Todo.create(newTodoData);
 
-      currentList.todos.push(newTodo.id);
-      newTodo.container = currentList.id;
-      await currentList.save();
-      await newTodo.save();
-      return res.status(201).json(newTodo);
-   } catch (error) {
-      return next(error);
-   }
+		currentList.todos.push(newTodo.id);
+		await currentList.save();
+		return res.status(201).json(newTodo);
+	} catch (error) {
+		return next(error);
+	}
 };
 
 //Owner && Admins Only
 exports.findOne = async (req, res, next) => {
-   try {
-      const todo = await Todo.findOne({ _id: req.params.todoId });
-      if (!todo) throw errorHandler(404, "Not Found");
-      return res.status(200).json(todo);
-   } catch (error) {
-      return next(error);
-   }
+	try {
+		const { currentTodo } = req.locals;
+
+		await currentTodo.populate("container").execPopulate();
+		return res.status(200).json(currentTodo);
+	} catch (error) {
+		return next(error);
+	}
 };
 
 //Owner && Admins Only for non admin creators
 exports.update = async (req, res, next) => {
-   try {
-      const { todoId } = req.params,
-         options = {
-            runValidators: true,
-            new: true
-         },
-         { container, ...updateData } = req.body,
-         updatedTodo = await Todo.findByIdAndUpdate(
-            todoId,
-            updateData,
-            options
-         );
+	try {
+		const { todoId } = req.params,
+			options = {
+				runValidators: true,
+				new: true
+			},
+			{ container, ...updateData } = req.body,
+			updatedTodo = await Todo.findByIdAndUpdate(
+				todoId,
+				updateData,
+				options
+			);
 
-      if (!updatedTodo) throw errorHandler(404, "Not Found");
-      return res.status(200).json(updatedTodo);
-   } catch (error) {
-      return next(error);
-   }
+		if (!updatedTodo) throw errorHandler(404, "Not Found");
+		return res.status(200).json(updatedTodo);
+	} catch (error) {
+		return next(error);
+	}
 };
 
 //Owner && Admins Only for non admin creators
 exports.delete = async (req, res, next) => {
-   try {
-      const { todoId } = req.params,
-         { currentList, currentTodo } = req.locals;
+	try {
+		const { todoId } = req.params,
+			{ currentList, currentTodo } = req.locals;
 
-      await currentTodo.delete();
-      currentList.todos.pull(todoId);
-      await currentList.save();
-      return res.status(200).json({ message: "Todo Deleted Successfully" });
-   } catch (error) {
-      return next(error);
-   }
+		await currentTodo.delete();
+		currentList.todos.pull(todoId);
+		await currentList.save();
+		return res.status(200).json({ message: "Todo Deleted Successfully" });
+	} catch (error) {
+		return next(error);
+	}
 };
 
 module.exports = exports;

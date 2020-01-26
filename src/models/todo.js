@@ -12,7 +12,8 @@ const mongoose = require("mongoose"),
 			},
 			container: {
 				type: mongoose.Schema.Types.ObjectId,
-				ref: "TodoList"
+				ref: "TodoList",
+				required: true
 			}
 		},
 		{ timestamps: true }
