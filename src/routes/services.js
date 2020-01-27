@@ -1,6 +1,11 @@
 const router = require("express").Router(),
-      helpers = require("../helpers/services");
+	helpers = require("../helpers/services"),
+	{ servicesMiddlewares } = require("../middlewares");
 
-router.post("/sendMail", helpers.sendMail);
+router.post(
+	"/sendMail",
+	servicesMiddlewares.sendMailMiddlewares,
+	helpers.sendMail
+);
 
 module.exports = router;

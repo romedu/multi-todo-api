@@ -27,7 +27,7 @@ exports.sendMail = async (req, res, next) => {
 			};
 
 		if (!mailMessage)
-			throw errorHandler(409, "A message body is required to proceed");
+			throw errorHandler(422, "A message body is required to proceed");
 
 		await transporter.sendMail(mailOptions);
 		return res.status(200).json({ message: "Message sent successfully" });
