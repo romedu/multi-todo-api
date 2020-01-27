@@ -2,7 +2,7 @@ const request = require("supertest"),
 	app = require("../src/app"),
 	{ createTestUser } = require("./utilities");
 
-describe("Services routes", () => {
+describe.skip("Services routes", () => {
 	describe("/sendMail", () => {
 		const baseUrl = "/api/services/sendMail";
 
