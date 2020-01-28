@@ -2,7 +2,7 @@ const request = require("supertest"),
 	app = require("../src/app"),
 	{ createTestUser } = require("./utilities");
 
-describe.skip("Services routes", () => {
+describe("Services routes", () => {
 	describe("/sendMail", () => {
 		const baseUrl = "/api/services/sendMail";
 
@@ -34,7 +34,7 @@ describe.skip("Services routes", () => {
 
 		describe("Post request", () => {
 			describe("Authorized request", () => {
-				describe("Passing valid inputs", () => {
+				describe.skip("Passing valid inputs", () => {
 					let response;
 
 					beforeAll(async () => {
