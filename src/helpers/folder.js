@@ -3,19 +3,17 @@ const { Folder, TodoList } = require("../models"),
 
 exports.find = async (req, res, next) => {
 	try {
-		const { isAdmin, id: userId } = req.locals.user,
-			{ getAll, page, limit, sortProp, sortOrder } = req.query,
-			searchArg = isAdmin && getAll ? {} : { creator: userId },
+		const { user } = req.locals,
+			{ page, limit, sortProp, sortOrder } = req.query,
+			searchArg = { creator: user.id },
+			defaultLimit = 20,
 			options = {
 				sort: { [sortProp]: sortOrder },
 				page,
-				limit: Number(limit)
+				limit: Number(limit) < defaultLimit ? Number(limit) : defaultLimit
 			},
-			foundFolders = limit
-				? await Folder.paginate(searchArg, options)
-				: await Folder.find(searchArg);
+			foundFolders = await Folder.paginate(searchArg, options);
 
-		if (!foundFolders) throw errorHandler(404, "Not Found");
 		return res.status(200).json(foundFolders);
 	} catch (error) {
 		return next(error);
@@ -24,10 +22,13 @@ exports.find = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
 	try {
-		const newFolder = await Folder.create(req.body);
-		newFolder.creator = req.locals.user.id;
+		const { user } = req.locals,
+			newFolderData = {
+				...req.body,
+				creator: user.id
+			},
+			newFolder = await Folder.create(newFolderData);
 
-		await newFolder.save();
 		return res.status(201).json(newFolder);
 	} catch (error) {
 		if (error.code === 11000) {
