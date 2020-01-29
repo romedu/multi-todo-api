@@ -42,24 +42,20 @@ exports.create = async (req, res, next) => {
 	}
 };
 
-//Check if owner or admin
 exports.findOne = async (req, res, next) => {
 	try {
-		const { currentFolder, creator } = req.locals,
+		const { currentFolder } = req.locals,
 			populatedFolder = await currentFolder.populate("files").execPopulate();
 
-		return res
-			.status(200)
-			.json({ ...populatedFolder._doc, creator: creator.id });
+		return res.status(200).json({ ...populatedFolder._doc });
 	} catch (error) {
 		return next(error);
 	}
 };
 
-//Only the owner or admins for non admin creators
 exports.update = async (req, res, next) => {
 	try {
-		const { currentFolder, creator } = req.locals,
+		const { currentFolder } = req.locals,
 			options = {
 				runValidators: true
 			},
@@ -77,7 +73,7 @@ exports.update = async (req, res, next) => {
 			});
 		}
 
-		return res.status(200).json({ ...updatedFolder, creator: creator.id });
+		return res.status(200).json({ ...updatedFolder });
 	} catch (error) {
 		if (error.code === 11000) {
 			error = errorHandler(
@@ -90,7 +86,6 @@ exports.update = async (req, res, next) => {
 	}
 };
 
-//Only the owner or admins for non admin creators
 exports.delete = async (req, res, next) => {
 	try {
 		const { currentFolder } = req.locals,

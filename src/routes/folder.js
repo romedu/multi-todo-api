@@ -12,6 +12,6 @@ router
 	.all(...folderMiddlewares.idCommonMiddlewares)
 	.get(helpers.findOne)
 	.patch(...folderMiddlewares.idPatchMiddlewares, helpers.update)
-	.delete(...folderMiddlewares.idDeleteMiddlewares, helpers.delete);
+	.delete(helpers.delete);
 
 module.exports = router;

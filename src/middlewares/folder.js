@@ -11,46 +11,30 @@ const getCurrentFolder = async (req, res, next) => {
 	try {
 		const foundFolder = await Folder.findById(req.params.id);
 
-		if (!foundFolder) throw errorHandler(404, "Not Found");
-		req.locals.currentFolder = foundFolder;
-		next();
+		if (foundFolder) {
+			req.locals.currentFolder = foundFolder;
+			return next();
+		} else throw errorHandler(404, "Not Found");
 	} catch (error) {
 		next(error);
 	}
 };
 
-// Populate the currentFolder's creator property, check if the current user is the folder owner or an admin,
-// and pass in the creator property in the req.locals object
+// Check if the current user is the folder owner
 const checkPermission = async (req, res, next) => {
 	try {
 		const { currentFolder, user } = req.locals,
-			populatedFolder = await currentFolder
-				.populate("creator")
-				.execPopulate(),
-			{ creator } = populatedFolder,
-			{ isAdmin, id: userId } = user;
+			isUserAuthorized = `${currentFolder.creator}` === `${user.id}`;
 
-		if (!isAdmin && creator.id !== userId) {
-			throw errorHandler(401, "You are not authorized");
-		}
-		req.locals.creator = creator;
-		return next();
+		if (isUserAuthorized) return next();
+		else throw errorHandler(401, "You are not authorized to proceed");
 	} catch (error) {
 		next(error);
 	}
-};
-
-// If the current folder creator is an admin only him can proceed
-const ownerPrivileges = (req, res, next) => {
-	const { user, creator } = req.locals;
-
-	if (!creator.isAdmin || creator.id === user.id) return next();
-	return next(errorHandler(401, "You are not authorized to proceed"));
 };
 
 exports.postMiddlewares = [createFolderValidators, confirmValidation];
 exports.idCommonMiddlewares = [getCurrentFolder, checkPermission];
 exports.idPatchMiddlewares = [updateFolderValidators, confirmValidation];
-exports.idDeleteMiddlewares = [ownerPrivileges];
 
 module.exports = exports;
