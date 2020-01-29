@@ -26,21 +26,64 @@ describe("Folder routes", () => {
 
 		describe("Authorized requests", () => {
 			describe("Get request", () => {
-				let response;
+				const paginatedFoldersSchema = {
+					docs: expect.any(Array),
+					total: expect.any(Number),
+					limit: expect.any(Number)
+				};
 
-				beforeAll(async () => {
-					response = await request(app)
-						.get(baseUrl)
-						.set("Authorization", authorizationToken);
+				describe("Passing a valid limit query param", () => {
+					const queryParams = { limit: 10 };
+
+					let response;
+
+					beforeAll(async () => {
+						response = await request(app)
+							.get(baseUrl)
+							.query(queryParams)
+							.set("Authorization", authorizationToken);
+					});
+
+					it("should return a status of 200", () => {
+						expect(response.status).toBe(200);
+					});
+
+					it("should return a paginated folders object", () => {
+						expect(response.body).toEqual(
+							expect.objectContaining(paginatedFoldersSchema)
+						);
+					});
+
+					it("should return with a limit property with the same value as the one passed", () => {
+						expect(response.body.limit).toBe(queryParams.limit);
+					});
 				});
 
-				it("should return a status of 200", () => {
-					expect(response.status).toBe(200);
-				});
+				describe("Passing an invalid limit query param", () => {
+					const queryParams = { limit: "invalid limit" };
 
-				it("should return an array of folders", () => {
-					const { body: folders } = response;
-					expect(folders).toBeInstanceOf(Array);
+					let response;
+
+					beforeAll(async () => {
+						response = await request(app)
+							.get(baseUrl)
+							.query(queryParams)
+							.set("Authorization", authorizationToken);
+					});
+
+					it("should return a status of 200", () => {
+						expect(response.status).toBe(200);
+					});
+
+					it("should return a paginated folders object", () => {
+						expect(response.body).toEqual(
+							expect.objectContaining(paginatedFoldersSchema)
+						);
+					});
+
+					it("should return with a limit property equal to it's default value", () => {
+						expect(response.body.limit).not.toBe(queryParams.limit);
+					});
 				});
 			});
 
@@ -72,14 +115,12 @@ describe("Folder routes", () => {
 
 					it("should save the new folder", async () => {
 						const { body: newFolder } = response,
-							{ body: folderListAfterRequest } = await request(app)
-								.get(baseUrl)
-								.set("Authorization", authorizationToken),
-							isNewFolderSaved = folderListAfterRequest.some(
-								folder => folder.id === newFolder.id
-							);
+							findFolderUrl = `${baseUrl}/${newFolder._id}`,
+							newFolderQueryResponse = await request(app)
+								.get(findFolderUrl)
+								.set("Authorization", authorizationToken);
 
-						expect(isNewFolderSaved).toBeTruthy();
+						expect(newFolderQueryResponse.status).toEqual(200);
 					});
 
 					it("should return a name property with the same value as the one passed", () => {
