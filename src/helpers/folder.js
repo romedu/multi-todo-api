@@ -47,7 +47,7 @@ exports.findOne = async (req, res, next) => {
 		const { currentFolder } = req.locals,
 			populatedFolder = await currentFolder.populate("files").execPopulate();
 
-		return res.status(200).json({ ...populatedFolder._doc });
+		return res.status(200).json(populatedFolder);
 	} catch (error) {
 		return next(error);
 	}
@@ -59,15 +59,14 @@ exports.update = async (req, res, next) => {
 			options = {
 				runValidators: true
 			},
-			populatedFolder = await currentFolder.populate("files").execPopulate(),
-			updatedFolder = { ...populatedFolder._doc, ...req.body },
+			updatedFolder = { ...currentFolder, ...req.body },
 			{ name: newFolderName } = req.body;
 
-		// Update the folder
-		await populatedFolder.updateOne(req.body, options);
+		await currentFolder.updateOne(req.body, options);
+		await currentFolder.populate("files").execPopulate();
 
-		if (newFolderName && updatedFolder.files.length) {
-			updatedFolder.files.forEach(async file => {
+		if (newFolderName && currentFolder.files.length) {
+			currentFolder.files.forEach(async file => {
 				file.folderName = newFolderName;
 				await file.save();
 			});
@@ -89,8 +88,7 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
 	try {
 		const { currentFolder } = req.locals,
-			populatedFolder = await currentFolder.populate("files").execPopulate(),
-			{ files: folderFiles, name: folderName } = populatedFolder,
+			{ files: folderFiles, name: folderName } = currentFolder,
 			{ keep: keepFiles } = req.query;
 
 		await currentFolder.delete();
