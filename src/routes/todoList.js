@@ -12,7 +12,7 @@ router
 	.all(...todoListMiddlewares.idCommonMiddlewares)
 	.get(helpers.findOne)
 	.patch(...todoListMiddlewares.idPatchMiddlewares, helpers.update)
-	.delete(...todoListMiddlewares.idDeleteMiddlewares, helpers.delete);
+	.delete(helpers.delete);
 
 router.get(
 	"/:id/download",

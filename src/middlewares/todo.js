@@ -24,24 +24,16 @@ exports.commonMiddlewares = [
 	todosMiddlewares.checkPermission
 ];
 
-exports.postMiddlewares = [
-	createTodoValidators,
-	confirmValidation,
-	todosMiddlewares.ownerOnly
-];
+exports.postMiddlewares = [createTodoValidators, confirmValidation];
 
 exports.idGetMiddlewares = [getCurrentTodo];
 
 exports.idPatchMiddlewares = [
 	updateTodoValidators,
 	confirmValidation,
-	todosMiddlewares.ownerOnly,
 	getCurrentTodo
 ];
 
-exports.idDeleteMiddlewares = [
-	todosMiddlewares.ownerPrivileges,
-	getCurrentTodo
-];
+exports.idDeleteMiddlewares = [getCurrentTodo];
 
 module.exports = exports;
