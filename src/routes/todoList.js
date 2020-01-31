@@ -5,18 +5,18 @@ const router = require("express").Router(),
 router
 	.route("/")
 	.get(helpers.find)
-	.post(...todoListMiddlewares.postMiddlewares, helpers.create);
+	.post(todoListMiddlewares.postMiddlewares, helpers.create);
 
 router
 	.route("/:id")
-	.all(...todoListMiddlewares.idCommonMiddlewares)
+	.all(todoListMiddlewares.idCommonMiddlewares)
 	.get(helpers.findOne)
-	.patch(...todoListMiddlewares.idPatchMiddlewares, helpers.update)
+	.patch(todoListMiddlewares.idPatchMiddlewares, helpers.update)
 	.delete(helpers.delete);
 
 router.get(
 	"/:id/download",
-	...todoListMiddlewares.idDownloadGetMiddlewares,
+	todoListMiddlewares.idDownloadGetMiddlewares,
 	helpers.downloadFile
 );
 

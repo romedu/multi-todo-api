@@ -5,13 +5,13 @@ const router = require("express").Router(),
 router
 	.route("/")
 	.get(helpers.find)
-	.post(...folderMiddlewares.postMiddlewares, helpers.create);
+	.post(folderMiddlewares.postMiddlewares, helpers.create);
 
 router
 	.route("/:id")
-	.all(...folderMiddlewares.idCommonMiddlewares)
+	.all(folderMiddlewares.idCommonMiddlewares)
 	.get(helpers.findOne)
-	.patch(...folderMiddlewares.idPatchMiddlewares, helpers.update)
+	.patch(folderMiddlewares.idPatchMiddlewares, helpers.update)
 	.delete(helpers.delete);
 
 module.exports = router;

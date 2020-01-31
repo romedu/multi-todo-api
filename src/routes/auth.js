@@ -4,16 +4,8 @@ const router = require("express").Router(),
 
 router.post("/login", helpers.login);
 
-router.post(
-	"/register",
-	...authMiddlewares.registerMiddlewares,
-	helpers.register
-);
+router.post("/register", authMiddlewares.registerMiddlewares, helpers.register);
 
-router.get(
-	"/verify",
-	...authMiddlewares.verifyMiddlewares,
-	helpers.verifyToken
-);
+router.get("/verify", authMiddlewares.verifyMiddlewares, helpers.verifyToken);
 
 module.exports = router;
