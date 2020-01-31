@@ -17,13 +17,10 @@ exports.idCommonMiddlewares = [
 ];
 
 exports.idPatchMiddlewares = [
-	todosMiddlewares.ownerOnly,
 	todosMiddlewares.checkIfFolderOwner,
 	updateTodoListValidators,
 	confirmValidation
 ];
-
-exports.idDeleteMiddlewares = [todosMiddlewares.ownerPrivileges];
 
 exports.idDownloadGetMiddlewares = [
 	todosMiddlewares.getCurrentList,

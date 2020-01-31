@@ -5,6 +5,7 @@ const { Todo, TodoList } = require("../models"),
 exports.find = async (req, res, next) => {
 	try {
 		const todos = await Todo.find({ container: req.params.id });
+
 		if (!todos) throw errorHandler(404, "Not Found");
 		return res.status(200).json(todos);
 	} catch (error) {
@@ -45,19 +46,18 @@ exports.findOne = async (req, res, next) => {
 //Owner && Admins Only for non admin creators
 exports.update = async (req, res, next) => {
 	try {
-		const { todoId } = req.params,
-			options = {
-				runValidators: true,
-				new: true
-			},
+		const { currentTodo } = req.locals,
 			{ container, ...updateData } = req.body,
-			updatedTodo = await Todo.findByIdAndUpdate(
-				todoId,
-				updateData,
-				options
-			);
+			updateOptions = {
+				omitUndefined: true,
+				runValidators: true
+			},
+			updatedTodo = {
+				currentTodo,
+				...updateData
+			};
 
-		if (!updatedTodo) throw errorHandler(404, "Not Found");
+		await currentTodo.updateOne(updateData, updateOptions);
 		return res.status(200).json(updatedTodo);
 	} catch (error) {
 		return next(error);
