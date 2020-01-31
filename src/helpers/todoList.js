@@ -23,7 +23,6 @@ exports.find = async (req, res, next) => {
 		if (folderLess) searchArg.folderName = undefined;
 
 		foundLists = await TodoList.paginate(searchArg, options);
-
 		return res.status(200).json(foundLists);
 	} catch (error) {
 		next(error);
@@ -53,10 +52,10 @@ exports.create = async (req, res, next) => {
 
 exports.findOne = async (req, res, next) => {
 	try {
-		const { currentList, creator } = req.locals,
-			populatedList = await currentList.populate("todos").execPopulate();
+		const { currentList } = req.locals;
 
-		return res.status(200).json({ ...populatedList._doc, creator });
+		await currentList.populate("todos").execPopulate();
+		return res.status(200).json(currentList);
 	} catch (error) {
 		return next(error);
 	}
@@ -65,15 +64,11 @@ exports.findOne = async (req, res, next) => {
 exports.update = async (req, res, next) => {
 	try {
 		const { folderName, ...updateData } = req.body,
-			{
-				currentList,
-				creator,
-				currentListFolder: listNewFolder
-			} = req.locals,
+			{ currentList, currentListFolder: listNewFolder } = req.locals,
 			options = {
 				runValidators: true
 			},
-			updatedList = { ...currentList._doc, ...updateData };
+			updatedList = { ...currentList, ...updateData };
 
 		await currentList.updateOne(updateData, options);
 
@@ -105,7 +100,7 @@ exports.update = async (req, res, next) => {
 			}
 		}
 
-		return res.status(200).json({ ...updatedList, creator: creator.id });
+		return res.status(200).json(updatedList);
 	} catch (error) {
 		return next(error);
 	}
