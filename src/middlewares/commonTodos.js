@@ -13,7 +13,6 @@ exports.getCurrentList = async (req, res, next) => {
 	}
 };
 
-// Validates that the currentUser is either an admin or the currentList owner
 exports.checkPermission = async (req, res, next) => {
 	try {
 		const { user, currentList } = req.locals,
