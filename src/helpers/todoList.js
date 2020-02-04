@@ -1,8 +1,10 @@
 const fs = require("fs"),
 	os = require("os"),
-	path = require("path"),
-	{ TodoList, Todo, Folder } = require("../models"),
-	{ errorHandler } = require("./error");
+   path = require("path"),
+   {promisify} = require("util"),
+	{ TodoList, Todo } = require("../models"),
+   fsMkdtempPromise = promisify(fs.mkdtemp),
+   fsWriteFilePromise = promisify(fs.writeFile);
 
 // Finds either all the todoLists or the ones in a specific folder
 exports.find = async (req, res, next) => {
@@ -20,7 +22,7 @@ exports.find = async (req, res, next) => {
 		let foundLists;
 
 		// This is used to find all the todoList that are not inisde of a folder
-		if (folderLess) searchArg.folderName = undefined;
+		if (folderLess) searchArg.container = undefined;
 
 		foundLists = await TodoList.paginate(searchArg, options);
 		return res.status(200).json(foundLists);
@@ -31,7 +33,7 @@ exports.find = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
 	try {
-		const { currentListFolder, user } = req.locals,
+		const { listNewFolder, user } = req.locals,
 			newTodoListData = {
 				...req.body,
 				creator: user.id
@@ -39,9 +41,9 @@ exports.create = async (req, res, next) => {
 			newTodoList = await TodoList.create(newTodoListData);
 
 		// If the newList is inside of a folder, add it to that folder
-		if (currentListFolder) {
-			currentListFolder.files.push(newTodoList.id);
-			await currentListFolder.save();
+		if (listNewFolder) {
+			listNewFolder.files.push(newTodoList.id);
+			await listNewFolder.save();
 		}
 
 		return res.status(201).json(newTodoList);
@@ -63,41 +65,27 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
 	try {
-		const { folderName, ...updateData } = req.body,
-			{ currentList, currentListFolder: listNewFolder } = req.locals,
+		const { currentList, listNewFolder } = req.locals,
 			options = {
-				runValidators: true
+				new: true,
+				runValidators: true,
+				omitUndefined: false
 			},
-			updatedList = { ...currentList, ...updateData };
+			updatedList = await TodoList.findByIdAndUpdate(
+				currentList._id,
+				req.body,
+				options
+			);
 
-		await currentList.updateOne(updateData, options);
-
-		// Check if there is a folderName in the req.body and said folder is different than the one the list is inside of (if any)
-		if (folderName && currentList.folderName !== folderName) {
-			// Check if the updated list was inside of a folder
-			if (currentList.folderName) {
-				const oldFolder = await Folder.findOne({
-					name: currentList.folderName
-				});
-				if (!oldFolder) throw errorHandler(404, "Not Found");
-
-				// Remove the current list from the old folder
-				oldFolder.files.pull(currentList.id);
-				await oldFolder.save();
-			}
-			// Check if the list was moved to a folder
-			if (folderName !== "-- No Folder --") {
-				// Add the current list to the new folder
-				listNewFolder.files.push(currentList.id);
-				currentList.folderName = listNewFolder.name;
-				updatedList.folderName = listNewFolder.name;
-				await listNewFolder.save();
-				await currentList.save();
-			} else {
-				currentList.folderName = null;
-				updatedList.folderName = null;
-				await currentList.save();
-			}
+		if (currentList.container) {
+			await currentList.populate("container").execPopulate();
+			currentList.container.files.pull(currentList._id);
+			await currentList.container.save();
+			currentList.depopulate("container");
+		}
+		if (listNewFolder) {
+			listNewFolder.files.push(currentList._id);
+			await listNewFolder.save();
 		}
 
 		return res.status(200).json(updatedList);
@@ -108,22 +96,11 @@ exports.update = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
 	try {
-		const { currentList: listToDelete } = req.locals;
-
-		await listToDelete.delete();
-
-		// If the list is inside a folder, remove its reference from it
-		if (listToDelete.folderName) {
-			const currentListFolder = await Folder.findOne({
-				name: listToDelete.folderName
-			});
-			if (!currentListFolder) throw errorHandler(404, "Not Found");
-			currentListFolder.files.pull(listToDelete.id);
-			await currentListFolder.save();
-		}
+		const { currentList } = req.locals;
 
 		// Delete all of the todos from the list
-		await Todo.deleteMany({ container: listToDelete.id });
+		await Todo.deleteMany({ container: currentList._id });
+		await currentList.delete();
 
 		return res
 			.status(200)
@@ -136,29 +113,24 @@ exports.delete = async (req, res, next) => {
 // The file will contain the description of all of the todos in the list separated by a new line
 exports.downloadFile = async (req, res, next) => {
 	try {
-		const tempDirPath = os.tmpdir(),
-			{ currentList } = req.locals,
-			populatedList = await currentList.populate("todos").execPopulate(),
-			{
-				name: listName,
-				todos: listTodos,
-				folderName: listFolderName
-			} = populatedList,
-			fileText = `${
-				listFolderName ? listFolderName + "\n" : ""
-			}${listName}: \n\n${listTodos
-				.map(todo => `• ${todo.description}`)
-				.join("\n")}`;
+      const { currentList } = req.locals,
+            tempDirPath = os.tmpdir(),
+            tempFolderPath = await fsMkdtempPromise(`${tempDirPath}${path.sep}`),
+            tempFilePath = `${tempFolderPath}${path.sep}todo-download.txt`;
+      
+      let fileContent;
 
-		fs.mkdtemp(`${tempDirPath}${path.sep}`, (error, folderPath) => {
-			if (error) throw errorHandler(500, error.message);
-			const tempFilePath = `${folderPath}${path.sep}todo-download.txt`;
+      await currentList.populate(["todos", "container"]).execPopulate();
 
-			fs.writeFile(tempFilePath, fileText, error => {
-				if (error) throw errorHandler(500, error.message);
-				return res.download(tempFilePath);
-			});
-		});
+      fileContent = `
+         ${currentList.container ? currentList.container.name : ""}
+         ${currentList.name}: 
+         
+         ${currentList.todos.map(todo => `• ${todo.description}`).join("\n")}
+      `;
+
+      await fsWriteFilePromise(tempFilePath, fileContent);
+		return res.download(tempFilePath);
 	} catch (error) {
 		return next(error);
 	}

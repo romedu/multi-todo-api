@@ -69,7 +69,6 @@ describe("Auth routes", () => {
 				it("should return an user object", () => {
 					const userObject = {
 						username: expect.any(String),
-						isAdmin: expect.any(Boolean),
 						token: expect.any(String),
 						id: expect.any(String),
 						tokenExp: expect.any(Number)

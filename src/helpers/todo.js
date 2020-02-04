@@ -1,7 +1,6 @@
-const { Todo, TodoList } = require("../models"),
+const { Todo } = require("../models"),
 	{ errorHandler } = require("./error");
 
-//Owner && Admins Only
 exports.find = async (req, res, next) => {
 	try {
 		const todos = await Todo.find({ container: req.params.id });
@@ -13,7 +12,6 @@ exports.find = async (req, res, next) => {
 	}
 };
 
-//Owner && Admins Only for non admin creators
 exports.create = async (req, res, next) => {
 	try {
 		const { currentList } = req.locals,
@@ -31,7 +29,6 @@ exports.create = async (req, res, next) => {
 	}
 };
 
-//Owner && Admins Only
 exports.findOne = async (req, res, next) => {
 	try {
 		const { currentTodo } = req.locals;
@@ -43,7 +40,6 @@ exports.findOne = async (req, res, next) => {
 	}
 };
 
-//Owner && Admins Only for non admin creators
 exports.update = async (req, res, next) => {
 	try {
 		const { currentTodo } = req.locals,
@@ -64,7 +60,6 @@ exports.update = async (req, res, next) => {
 	}
 };
 
-//Owner && Admins Only for non admin creators
 exports.delete = async (req, res, next) => {
 	try {
 		const { todoId } = req.params,

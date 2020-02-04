@@ -13,7 +13,6 @@ exports.getCurrentList = async (req, res, next) => {
 	}
 };
 
-// Validates that the currentUser is either an admin or the currentList owner
 exports.checkPermission = async (req, res, next) => {
 	try {
 		const { user, currentList } = req.locals,
@@ -26,25 +25,33 @@ exports.checkPermission = async (req, res, next) => {
 	}
 };
 
+exports.getListNewFolder = async (req, res, next) => {
+	try {
+		const { container: listNewFolderId } = req.body;
+
+		if (listNewFolderId) {
+			const listNewFolder = await Folder.findById(listNewFolderId);
+
+			if (listNewFolder) req.locals.listNewFolder = listNewFolder;
+			else throw errorHandler(404, "Not Found");
+		}
+
+		return next();
+	} catch (error) {
+		next(error);
+	}
+};
+
 // If the list is going to be inside of a folder check if the current user is it's owner
 exports.checkIfFolderOwner = async (req, res, next) => {
 	try {
-		const { body, locals } = req,
-			{ user } = locals;
+		const { user, listNewFolder } = req.locals;
 
-		if (body.folderName && body.folderName !== "-- No Folder --") {
-			const currentListFolder = await Folder.findOne({
-				name: body.folderName
-			});
+		if (listNewFolder) {
+			const isUserFolderOwner = `${listNewFolder.creator}` === `${user.id}`;
 
-			if (!currentListFolder) throw errorHandler(404, "Not Found");
-			else {
-				const isUserFolderOwner =
-					`${currentListFolder.creator}` === `${user.id}`;
-
-				if (isUserFolderOwner) locals.currentListFolder = currentListFolder;
-				else throw errorHandler(401, "You are not authorized to proceed");
-			}
+			if (!isUserFolderOwner)
+				throw errorHandler(401, "You are not authorized to proceed");
 		}
 
 		return next();

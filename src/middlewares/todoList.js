@@ -6,6 +6,7 @@ const todosMiddlewares = require("./commonTodos"),
 	} = require("../helpers/validator");
 
 exports.postMiddlewares = [
+	todosMiddlewares.getListNewFolder,
 	todosMiddlewares.checkIfFolderOwner,
 	createTodoListValidators,
 	confirmValidation
@@ -17,6 +18,7 @@ exports.idCommonMiddlewares = [
 ];
 
 exports.idPatchMiddlewares = [
+	todosMiddlewares.getListNewFolder,
 	todosMiddlewares.checkIfFolderOwner,
 	updateTodoListValidators,
 	confirmValidation

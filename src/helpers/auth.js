@@ -39,15 +39,14 @@ exports.verifyToken = (req, res) => {
 };
 
 const signUser = user => {
-	const { username, isAdmin, id } = user,
+	const { username, id } = user,
 		{ SECRET, ALGORITHM } = process.env,
-		token = jwt.sign({ username, isAdmin, id }, SECRET, {
+		token = jwt.sign({ username, id }, SECRET, {
 			expiresIn: "1h",
 			algorithm: ALGORITHM
 		}),
 		userData = {
 			username,
-			isAdmin,
 			token,
 			id,
 			tokenExp: Date.now() + 3600 * 1000
