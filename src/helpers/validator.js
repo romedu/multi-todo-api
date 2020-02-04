@@ -77,7 +77,12 @@ exports.updateFolderValidators = [
 	...commonFolderValidators
 ];
 
-const commonTodoListValidators = [
+exports.createTodoListValidators = [
+	check("name", "Name is required").exists({
+		checkFalsy: true,
+		checkNull: true
+	}),
+	check("name", "Name must be a string").isString(),
 	check("name", "Name must contain between 3 and 14 characters").isLength({
 		min: 3,
 		max: 14
@@ -91,20 +96,22 @@ const commonTodoListValidators = [
 		.optional()
 ];
 
-exports.createTodoListValidators = [
-	check("name", "Name is required").exists({
-		checkFalsy: true,
-		checkNull: true
-	}),
-	check("name", "Name must be a string").isString(),
-	...commonTodoListValidators
-];
-
 exports.updateTodoListValidators = [
 	check("name", "Name must be a string")
 		.isString()
 		.optional(),
-	...commonTodoListValidators
+	check("name", "Name must contain between 3 and 14 characters")
+		.isLength({
+			min: 3,
+			max: 14
+		})
+		.optional(),
+	check("name", "Name must only contain only alphanumeric characters")
+		.isAlphanumeric()
+		.optional(),
+	check("image", "Image must be a string")
+		.isString()
+		.optional()
 ];
 
 exports.createTodoValidators = [
