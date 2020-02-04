@@ -1,8 +1,10 @@
 const fs = require("fs"),
 	os = require("os"),
-	path = require("path"),
+   path = require("path"),
+   {promisify} = require("util"),
 	{ TodoList, Todo } = require("../models"),
-	{ errorHandler } = require("./error");
+   fsMkdtempPromise = promisify(fs.mkdtemp),
+   fsWriteFilePromise = promisify(fs.writeFile);
 
 // Finds either all the todoLists or the ones in a specific folder
 exports.find = async (req, res, next) => {
@@ -111,29 +113,24 @@ exports.delete = async (req, res, next) => {
 // The file will contain the description of all of the todos in the list separated by a new line
 exports.downloadFile = async (req, res, next) => {
 	try {
-		const tempDirPath = os.tmpdir(),
-			{ currentList } = req.locals,
-			populatedList = await currentList.populate("todos").execPopulate(),
-			{
-				name: listName,
-				todos: listTodos,
-				folderName: listFolderName
-			} = populatedList,
-			fileText = `${
-				listFolderName ? listFolderName + "\n" : ""
-			}${listName}: \n\n${listTodos
-				.map(todo => `• ${todo.description}`)
-				.join("\n")}`;
+      const { currentList } = req.locals,
+            tempDirPath = os.tmpdir(),
+            tempFolderPath = await fsMkdtempPromise(`${tempDirPath}${path.sep}`),
+            tempFilePath = `${tempFolderPath}${path.sep}todo-download.txt`;
+      
+      let fileContent;
 
-		fs.mkdtemp(`${tempDirPath}${path.sep}`, (error, folderPath) => {
-			if (error) throw errorHandler(500, error.message);
-			const tempFilePath = `${folderPath}${path.sep}todo-download.txt`;
+      await currentList.populate(["todos", "container"]).execPopulate();
 
-			fs.writeFile(tempFilePath, fileText, error => {
-				if (error) throw errorHandler(500, error.message);
-				return res.download(tempFilePath);
-			});
-		});
+      fileContent = `
+         ${currentList.container ? currentList.container.name : ""}
+         ${currentList.name}: 
+         
+         ${currentList.todos.map(todo => `• ${todo.description}`).join("\n")}
+      `;
+
+      await fsWriteFilePromise(tempFilePath, fileContent);
+		return res.download(tempFilePath);
 	} catch (error) {
 		return next(error);
 	}
