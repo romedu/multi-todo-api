@@ -1,10 +1,10 @@
 const fs = require("fs"),
 	os = require("os"),
-   path = require("path"),
-   {promisify} = require("util"),
+	path = require("path"),
+	{ promisify } = require("util"),
 	{ TodoList, Todo } = require("../models"),
-   fsMkdtempPromise = promisify(fs.mkdtemp),
-   fsWriteFilePromise = promisify(fs.writeFile);
+	fsMkdtempPromise = promisify(fs.mkdtemp),
+	fsWriteFilePromise = promisify(fs.writeFile);
 
 // Finds either all the todoLists or the ones in a specific folder
 exports.find = async (req, res, next) => {
@@ -77,12 +77,8 @@ exports.update = async (req, res, next) => {
 				options
 			);
 
-		if (currentList.container) {
-			await currentList.populate("container").execPopulate();
-			currentList.container.files.pull(currentList._id);
-			await currentList.container.save();
-			currentList.depopulate("container");
-		}
+		await currentList.pullListFromContainer();
+
 		if (listNewFolder) {
 			listNewFolder.files.push(currentList._id);
 			await listNewFolder.save();
@@ -113,23 +109,23 @@ exports.delete = async (req, res, next) => {
 // The file will contain the description of all of the todos in the list separated by a new line
 exports.downloadFile = async (req, res, next) => {
 	try {
-      const { currentList } = req.locals,
-            tempDirPath = os.tmpdir(),
-            tempFolderPath = await fsMkdtempPromise(`${tempDirPath}${path.sep}`),
-            tempFilePath = `${tempFolderPath}${path.sep}todo-download.txt`;
-      
-      let fileContent;
+		const { currentList } = req.locals,
+			tempDirPath = os.tmpdir(),
+			tempFolderPath = await fsMkdtempPromise(`${tempDirPath}${path.sep}`),
+			tempFilePath = `${tempFolderPath}${path.sep}todo-download.txt`;
 
-      await currentList.populate(["todos", "container"]).execPopulate();
+		let fileContent;
 
-      fileContent = `
+		await currentList.populate(["todos", "container"]).execPopulate();
+
+		fileContent = `
          ${currentList.container ? currentList.container.name : ""}
          ${currentList.name}: 
          
          ${currentList.todos.map(todo => `• ${todo.description}`).join("\n")}
       `;
 
-      await fsWriteFilePromise(tempFilePath, fileContent);
+		await fsWriteFilePromise(tempFilePath, fileContent);
 		return res.download(tempFilePath);
 	} catch (error) {
 		return next(error);
