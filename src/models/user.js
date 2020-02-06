@@ -32,7 +32,7 @@ userSchema.pre("save", async function(next) {
 	}
 });
 
-userSchema.methods.comparePassword = async function(passedPassword, next) {
+userSchema.methods.comparePassword = async function(passedPassword) {
 	try {
 		let compareResult = await bcrypt.compare(passedPassword, this.password);
 		if (!compareResult) throw new Error("Incorrect Username/Password");

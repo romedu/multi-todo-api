@@ -35,8 +35,17 @@ const mongoose = require("mongoose"),
 
 todoListSchema.plugin(mongoosePaginate);
 
-function pullListFromContainer() {
-	// Coming soon....
-}
+todoListSchema.methods.pullListFromContainer = async function() {
+	try {
+		if (this.container) {
+			await this.populate("container").execPopulate();
+			this.container.files.pull(this._id);
+			await this.container.save();
+			this.depopulate("container");
+		}
+	} catch (error) {
+		throw error;
+	}
+};
 
 module.exports = mongoose.model("TodoList", todoListSchema);
