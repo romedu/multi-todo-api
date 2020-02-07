@@ -23,8 +23,8 @@ exports.userValidators = [
 	check("username", "Username must be a string").isString(),
 	check(
 		"username",
-		"Username must contain between 4 and 20 characters"
-	).isLength({ min: 4, max: 20 }),
+		"Username must contain between 4 and 24 characters"
+	).isLength({ min: 4, max: 24 }),
 	check(
 		"username",
 		"Username must only contain only alphanumeric characters"

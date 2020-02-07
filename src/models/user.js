@@ -6,8 +6,8 @@ const mongoose = require("mongoose"),
 			type: String,
 			required: [true, "Username is required"],
 			unique: true,
-			minlength: [4, "Only between 4 and 20 characters are allowed"],
-			maxlength: [20, "Only between 4 and 20 characters are allowed"],
+			minlength: [4, "Only between 4 and 24 characters are allowed"],
+			maxlength: [24, "Only between 4 and 24 characters are allowed"],
 			validate: {
 				validator: validator.alphanumOnly,
 				message: "Only alphanumeric and space characters are allowed"
