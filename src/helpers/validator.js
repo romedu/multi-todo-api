@@ -83,9 +83,9 @@ exports.createTodoListValidators = [
 		checkNull: true
 	}),
 	check("name", "Name must be a string").isString(),
-	check("name", "Name must contain between 3 and 14 characters").isLength({
-		min: 3,
-		max: 14
+	check("name", "Name must contain between 2 and 25 characters").isLength({
+		min: 2,
+		max: 25
 	}),
 	check(
 		"name",
@@ -100,10 +100,10 @@ exports.updateTodoListValidators = [
 	check("name", "Name must be a string")
 		.isString()
 		.optional(),
-	check("name", "Name must contain between 3 and 14 characters")
+	check("name", "Name must contain between 2 and 25 characters")
 		.isLength({
-			min: 3,
-			max: 14
+			min: 2,
+			max: 25
 		})
 		.optional(),
 	check("name", "Name must only contain only alphanumeric characters")
