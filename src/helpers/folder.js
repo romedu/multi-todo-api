@@ -55,24 +55,17 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
 	try {
-		const { currentFolder } = req.locals,
-			options = {
+		const options = {
+				new: true,
 				runValidators: true
 			},
-			updatedFolder = { ...currentFolder, ...req.body },
-			{ name: newFolderName } = req.body;
+			updatedFolder = await Folder.findByIdAndUpdate(
+				req.params.id,
+				req.body,
+				options
+			);
 
-		await currentFolder.updateOne(req.body, options);
-		await currentFolder.populate("files").execPopulate();
-
-		if (newFolderName && currentFolder.files.length) {
-			currentFolder.files.forEach(async file => {
-				file.folderName = newFolderName;
-				await file.save();
-			});
-		}
-
-		return res.status(200).json({ ...updatedFolder });
+		return res.status(200).json(updatedFolder);
 	} catch (error) {
 		if (error.code === 11000) {
 			error = errorHandler(
@@ -88,19 +81,12 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
 	try {
 		const { currentFolder } = req.locals,
-			{ files: folderFiles, name: folderName } = currentFolder,
 			{ keep: keepFiles } = req.query;
 
-		await currentFolder.delete();
+		if (currentFolder.files.length && !keepFiles)
+			await TodoList.deleteMany({ container: currentFolder._id });
 
-		if (folderFiles.length) {
-			if (keepFiles) {
-				await TodoList.updateMany(
-					{ folderName: folderName },
-					{ folderName: null }
-				);
-			} else await TodoList.deleteMany({ folderName: folderName });
-		}
+		await currentFolder.delete();
 
 		return res.status(200).json({ message: "Folder Removed Successfully" });
 	} catch (error) {
