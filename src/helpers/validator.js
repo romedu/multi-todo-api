@@ -41,7 +41,7 @@ exports.userValidators = [
 ];
 
 const commonFolderValidators = [
-	check("name", "Name must contain between 3 and 14 characters").isLength({
+	check("name", "Name must contain between 2 and 25 characters").isLength({
 		min: 2,
 		max: 25
 	}),
@@ -54,7 +54,7 @@ const commonFolderValidators = [
 		.optional(),
 	check(
 		"description",
-		"Description must contain a maximum of 45 characters"
+		"Description must contain a maximum of 100 characters"
 	).isLength({ max: 100 }),
 	check("image", "Image must be a string")
 		.isString()
