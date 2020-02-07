@@ -3,7 +3,7 @@ const todosMiddlewares = require("./commonTodos"),
 		createTodoListValidators,
 		updateTodoListValidators,
 		confirmValidation
-	} = require("../helpers/validator");
+	} = require("../validators");
 
 exports.postMiddlewares = [
 	todosMiddlewares.getListNewFolder,
