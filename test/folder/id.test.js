@@ -281,7 +281,7 @@ describe("Folder routes", () => {
 
 						beforeAll(async () => {
 							const testFolderData = {
-									name: "folderName2"
+									name: "folderName"
 								},
 								testFolderResponse = await request(app)
 									.post("/api/folder")

@@ -31,13 +31,6 @@ exports.create = async (req, res, next) => {
 
 		return res.status(201).json(newFolder);
 	} catch (error) {
-		if (error.code === 11000) {
-			error = errorHandler(
-				409,
-				"That name is not avaibale, please try another one"
-			);
-		}
-
 		return next(error);
 	}
 };
@@ -67,13 +60,6 @@ exports.update = async (req, res, next) => {
 
 		return res.status(200).json(updatedFolder);
 	} catch (error) {
-		if (error.code === 11000) {
-			error = errorHandler(
-				409,
-				"That name is not avaibale, please try another one"
-			);
-		}
-
 		return next(error);
 	}
 };
