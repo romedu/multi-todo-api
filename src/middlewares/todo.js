@@ -5,7 +5,7 @@ const { Todo } = require("../models"),
 		createTodoValidators,
 		updateTodoValidators,
 		confirmValidation
-	} = require("../helpers/validator");
+	} = require("../validators");
 
 const getCurrentTodo = async (req, res, next) => {
 	try {

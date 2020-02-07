@@ -1,5 +1,5 @@
 const { checkIfToken } = require("./common"),
-	{ userValidators, confirmValidation } = require("../helpers/validator");
+	{ userValidators, confirmValidation } = require("../validators");
 
 exports.registerMiddlewares = [userValidators, confirmValidation];
 exports.loginMiddlewares = [userValidators, confirmValidation];

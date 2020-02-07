@@ -1,5 +1,5 @@
 const mongoosePaginate = require("mongoose-paginate"),
-	validator = require("../helpers/validator");
+	validator = require("../validators");
 
 const mongoose = require("mongoose"),
 	todoListSchema = new mongoose.Schema(

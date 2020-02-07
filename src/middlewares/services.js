@@ -1,7 +1,4 @@
-const {
-	sendMailValidators,
-	confirmValidation
-} = require("../helpers/validator");
+const { sendMailValidators, confirmValidation } = require("../validators");
 
 exports.sendMailMiddlewares = [sendMailValidators, confirmValidation];
 
