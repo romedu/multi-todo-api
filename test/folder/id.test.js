@@ -229,28 +229,104 @@ describe("Folder routes", () => {
 				});
 
 				describe("Delete request", () => {
-					let response;
+					describe("Passing the keep query param as true", () => {
+						let response, testTodoListId;
 
-					beforeAll(async () => {
-						response = await request(app)
-							.delete(baseUrl)
-							.set("Authorization", authorizationToken);
+						beforeAll(async () => {
+							const testTodoListData = {
+									name: "testFolderList",
+									container: testFolder._id
+								},
+								testTodoList = await request(app)
+									.post("/api/todos")
+									.set("Authorization", authorizationToken)
+									.send(testTodoListData);
+
+							testTodoListId = testTodoList.body._id;
+							response = await request(app)
+								.delete(baseUrl)
+								.query({ keep: true })
+								.set("Authorization", authorizationToken);
+						});
+
+						it("should return a status of 200", () => {
+							expect(response.status).toBe(200);
+						});
+
+						it("should return a success message", () => {
+							expect(response.body.message).toBeDefined();
+						});
+
+						it("should remove the resource", async done => {
+							const folderQueryResponse = await request(app)
+								.get(baseUrl)
+								.set("Authorization", authorizationToken);
+
+							expect(folderQueryResponse.status).toBe(404);
+							done();
+						});
+
+						it("should keep the todoLists contained in the folder", async done => {
+							const testListQueryResponse = await request(app)
+								.get(`/api/todos/${testTodoListId}`)
+								.set("Authorization", authorizationToken);
+
+							expect(testListQueryResponse.status).toBe(200);
+							done();
+						});
 					});
 
-					it("should return a status of 200", () => {
-						expect(response.status).toBe(200);
-					});
+					describe("Not passing the keep query param", () => {
+						let response, testTodoListId;
 
-					it("should return a success message", () => {
-						expect(response.body.message).toBeDefined();
-					});
+						beforeAll(async () => {
+							const testFolderData = {
+									name: "folderName2"
+								},
+								testFolderResponse = await request(app)
+									.post("/api/folder")
+									.set("Authorization", authorizationToken)
+									.send(testFolderData),
+								testTodoListData = {
+									name: "testFolderList",
+									container: testFolderResponse.body._id
+								},
+								testTodoList = await request(app)
+									.post("/api/todos")
+									.set("Authorization", authorizationToken)
+									.send(testTodoListData);
 
-					it("should remove the resource", async done => {
-						const folderQueryResponse = await request(app)
-							.get(baseUrl)
-							.set("Authorization", authorizationToken);
-						expect(folderQueryResponse.status).toBe(404);
-						done();
+							testTodoListId = testTodoList.body._id;
+							response = await request(app)
+								.delete(`/api/folder/${testFolderResponse.body._id}`)
+								.set("Authorization", authorizationToken);
+						});
+
+						it("should return a status of 200", () => {
+							expect(response.status).toBe(200);
+						});
+
+						it("should return a success message", () => {
+							expect(response.body.message).toBeDefined();
+						});
+
+						it("should remove the resource", async done => {
+							const folderQueryResponse = await request(app)
+								.get(baseUrl)
+								.set("Authorization", authorizationToken);
+
+							expect(folderQueryResponse.status).toBe(404);
+							done();
+						});
+
+						it("should remove the todoLists contained in the folder", async done => {
+							const testListQueryResponse = await request(app)
+								.post(`/api/todos/${testTodoListId}`)
+								.set("Authorization", authorizationToken);
+
+							expect(testListQueryResponse.status).toBe(404);
+							done();
+						});
 					});
 				});
 			});
