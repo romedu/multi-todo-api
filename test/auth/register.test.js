@@ -1,13 +1,12 @@
 const request = require("supertest"),
-	app = require("../../src/app");
+	app = require("../../src/app"),
+	{ registerBaseUrl } = require("../urls");
 
 describe("Auth routes", () => {
 	describe("Register route", () => {
-		const baseUrl = "/api/auth/register";
-
 		describe("Get request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).get(baseUrl);
+				const response = await request(app).get(registerBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -15,7 +14,7 @@ describe("Auth routes", () => {
 
 		describe("Put request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).put(baseUrl);
+				const response = await request(app).put(registerBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -23,7 +22,7 @@ describe("Auth routes", () => {
 
 		describe("Patch request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).patch(baseUrl);
+				const response = await request(app).patch(registerBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -31,7 +30,7 @@ describe("Auth routes", () => {
 
 		describe("Delete request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).delete(baseUrl);
+				const response = await request(app).delete(registerBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -48,7 +47,7 @@ describe("Auth routes", () => {
 
 				beforeAll(async () => {
 					response = await request(app)
-						.post(baseUrl)
+						.post(registerBaseUrl)
 						.send(validTestUserData);
 				});
 
@@ -80,7 +79,7 @@ describe("Auth routes", () => {
 					describe("Using a taken username", () => {
 						it("should return a status of 409", async done => {
 							const response = await request(app)
-								.post(baseUrl)
+								.post(registerBaseUrl)
 								.send(validTestUserData);
 							expect(response.status).toBe(409);
 							done();
@@ -94,7 +93,7 @@ describe("Auth routes", () => {
 									username: 5
 								},
 								response = await request(app)
-									.post(baseUrl)
+									.post(registerBaseUrl)
 									.send(testUserData);
 
 							expect(response.status).toBe(422);
@@ -109,7 +108,7 @@ describe("Auth routes", () => {
 									username: "X"
 								},
 								response = await request(app)
-									.post(baseUrl)
+									.post(registerBaseUrl)
 									.send(testUserData);
 
 							expect(response.status).toBe(422);
@@ -124,7 +123,7 @@ describe("Auth routes", () => {
 									password: "X"
 								},
 								response = await request(app)
-									.post(baseUrl)
+									.post(registerBaseUrl)
 									.send(testUserData);
 
 							expect(response.status).toBe(422);
@@ -143,7 +142,7 @@ describe("Auth routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.post(baseUrl)
+							.post(registerBaseUrl)
 							.send(invalidTestUserData);
 					});
 
