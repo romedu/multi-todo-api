@@ -1,10 +1,9 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{ todoListBaseUrl, createTodoListIdDownloadUrl } = require("../urls");
 
 describe("TodoList routes", () => {
-	const rootUrl = "/api/todos";
-
 	let authorizationToken;
 
 	beforeAll(async () => {
@@ -26,11 +25,11 @@ describe("TodoList routes", () => {
 						name: "todolistName"
 					},
 					newTodoListResponse = await request(app)
-						.post(rootUrl)
+						.post(todoListBaseUrl)
 						.set("Authorization", authorizationToken)
 						.send(testTodoListData);
 
-				baseUrl = `${rootUrl}/${newTodoListResponse.body._id}/download`;
+				baseUrl = createTodoListIdDownloadUrl(newTodoListResponse.body._id);
 			});
 
 			describe("Authorized requests", () => {
@@ -119,7 +118,7 @@ describe("TodoList routes", () => {
 		});
 
 		describe("Requesting an invalid todolist id", () => {
-			const baseUrl = `${rootUrl}/invalidID123/download`;
+			const baseUrl = createTodoListIdDownloadUrl("invalidID123");
 
 			describe("Get request", () => {
 				it("should return a status of 404", async done => {

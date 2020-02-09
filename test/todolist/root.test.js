@@ -1,16 +1,16 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{ todoListBaseUrl, createTodoListIdUrl } = require("../urls");
 
 describe("TodoList routes", () => {
 	describe("/todos", () => {
-		const baseUrl = "/api/todos",
-			todolistObjectSchema = {
-				_id: expect.any(String),
-				name: expect.any(String),
-				todos: expect.any(Array),
-				creator: expect.any(String)
-			};
+		const todolistObjectSchema = {
+			_id: expect.any(String),
+			name: expect.any(String),
+			todos: expect.any(Array),
+			creator: expect.any(String)
+		};
 
 		let userData, authorizationToken;
 
@@ -40,7 +40,7 @@ describe("TodoList routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.get(baseUrl)
+							.get(todoListBaseUrl)
 							.query(queryParams)
 							.set("Authorization", authorizationToken);
 					});
@@ -67,7 +67,7 @@ describe("TodoList routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.get(baseUrl)
+							.get(todoListBaseUrl)
 							.query(queryParams)
 							.set("Authorization", authorizationToken);
 					});
@@ -98,7 +98,7 @@ describe("TodoList routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.post(baseUrl)
+							.post(todoListBaseUrl)
 							.set("Authorization", authorizationToken)
 							.send(testTodoListData);
 					});
@@ -115,9 +115,11 @@ describe("TodoList routes", () => {
 
 					it("should save the new todolist", async () => {
 						const { body: newTodoList } = response,
-							findTodoListUrl = `${baseUrl}/${newTodoList._id}`,
+							testTodoListQueryUrl = createTodoListIdUrl(
+								newTodoList._id
+							),
 							newTodoListQueryResponse = await request(app)
-								.get(findTodoListUrl)
+								.get(testTodoListQueryUrl)
 								.set("Authorization", authorizationToken);
 
 						expect(newTodoListQueryResponse.status).toEqual(200);
@@ -143,7 +145,7 @@ describe("TodoList routes", () => {
 
 						beforeAll(async () => {
 							response = await request(app)
-								.post(baseUrl)
+								.post(todoListBaseUrl)
 								.set("Authorization", authorizationToken)
 								.send(testTodoListData);
 						});
@@ -168,7 +170,7 @@ describe("TodoList routes", () => {
 
 							beforeAll(async () => {
 								response = await request(app)
-									.post(baseUrl)
+									.post(todoListBaseUrl)
 									.set("Authorization", authorizationToken)
 									.send(testTodoListData);
 							});
@@ -189,7 +191,7 @@ describe("TodoList routes", () => {
 			describe("Put request", () => {
 				it("should return a status of 404", async done => {
 					const response = await request(app)
-						.put(baseUrl)
+						.put(todoListBaseUrl)
 						.set("Authorization", authorizationToken);
 
 					expect(response.status).toBe(404);
@@ -200,7 +202,7 @@ describe("TodoList routes", () => {
 			describe("Patch request", () => {
 				it("should return a status of 404", async done => {
 					const response = await request(app)
-						.patch(baseUrl)
+						.patch(todoListBaseUrl)
 						.set("Authorization", authorizationToken);
 
 					expect(response.status).toBe(404);
@@ -211,7 +213,7 @@ describe("TodoList routes", () => {
 			describe("Delete request", () => {
 				it("should return a status of 404", async done => {
 					const response = await request(app)
-						.delete(baseUrl)
+						.delete(todoListBaseUrl)
 						.set("Authorization", authorizationToken);
 
 					expect(response.status).toBe(404);
@@ -223,7 +225,7 @@ describe("TodoList routes", () => {
 		describe("Unauthorized requests", () => {
 			describe("Get request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).get(baseUrl);
+					const response = await request(app).get(todoListBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
@@ -231,7 +233,7 @@ describe("TodoList routes", () => {
 
 			describe("Post request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).post(baseUrl);
+					const response = await request(app).post(todoListBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
@@ -239,7 +241,7 @@ describe("TodoList routes", () => {
 
 			describe("Patch request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).patch(baseUrl);
+					const response = await request(app).patch(todoListBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
@@ -247,7 +249,7 @@ describe("TodoList routes", () => {
 
 			describe("Delete request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).delete(baseUrl);
+					const response = await request(app).delete(todoListBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
