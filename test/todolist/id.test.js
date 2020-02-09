@@ -373,9 +373,19 @@ describe("TodoList routes", () => {
 				});
 
 				describe("Delete request", () => {
-					let response;
+					let response, testTodoId;
 
 					beforeAll(async () => {
+						const testTodoData = {
+								description: "Test todo description"
+							},
+							createTodoUrl = `${baseUrl}/todo`,
+							testTodoResponse = await request(app)
+								.post(createTodoUrl)
+								.set("Authorization", authorizationToken)
+								.send(testTodoData);
+
+						testTodoId = testTodoResponse.body._id;
 						response = await request(app)
 							.delete(baseUrl)
 							.set("Authorization", authorizationToken);
@@ -389,7 +399,7 @@ describe("TodoList routes", () => {
 						expect(response.body.message).toBeDefined();
 					});
 
-					it("should remove the resource", async done => {
+					it("should remove the todoList", async done => {
 						const todolistQueryResponse = await request(app)
 							.get(baseUrl)
 							.set("Authorization", authorizationToken);
@@ -408,6 +418,16 @@ describe("TodoList routes", () => {
 							);
 
 						expect(isTodoListPulled).toBe(true);
+						done();
+					});
+
+					it("should remove it's corresponding todos", async done => {
+						const testTodoQueryUrl = `${baseUrl}/todo/${testTodoId}`,
+							testTodoQueryReponse = await request(app)
+								.get(testTodoQueryUrl)
+								.set("Authorization", authorizationToken);
+
+						expect(testTodoQueryReponse.status).toBe(404);
 						done();
 					});
 				});

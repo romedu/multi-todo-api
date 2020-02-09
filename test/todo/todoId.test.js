@@ -253,6 +253,7 @@ describe("Todo routes", () => {
 						const todoQueryResponse = await request(app)
 							.get(baseUrl)
 							.set("Authorization", authorizationToken);
+
 						expect(todoQueryResponse.status).toBe(404);
 						done();
 					});
@@ -297,6 +298,7 @@ describe("Todo routes", () => {
 					const response = await request(app)
 						.post(baseUrl)
 						.set("Authorization", authorizationToken);
+
 					expect(response.status).toBe(404);
 					done();
 				});
@@ -307,6 +309,7 @@ describe("Todo routes", () => {
 					const response = await request(app)
 						.patch(baseUrl)
 						.set("Authorization", authorizationToken);
+
 					expect(response.status).toBe(404);
 					done();
 				});
@@ -317,6 +320,7 @@ describe("Todo routes", () => {
 					const response = await request(app)
 						.delete(baseUrl)
 						.set("Authorization", authorizationToken);
+
 					expect(response.status).toBe(404);
 					done();
 				});
