@@ -1,6 +1,12 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{
+		todoListBaseUrl,
+		createTodoUrl,
+		createTodoIdUrl,
+		createTodoListIdUrl
+	} = require("../urls");
 
 describe("Todo routes", () => {
 	describe("/todos/:id/todo/:todoId", () => {
@@ -10,11 +16,10 @@ describe("Todo routes", () => {
 			checked: expect.any(Boolean)
 		};
 
-		let rootUrl, testTodoList, authorizationToken;
+		let testTodoList, authorizationToken;
 
 		beforeAll(async () => {
-			const todoListRouteUrl = "/api/todos",
-				testUserCredentials = {
+			const testUserCredentials = {
 					username: "todoTestUsername2",
 					password: "todoTestPassword2"
 				},
@@ -23,12 +28,11 @@ describe("Todo routes", () => {
 				},
 				newTestUser = await createTestUser(testUserCredentials),
 				newTodoListResponse = await request(app)
-					.post(todoListRouteUrl)
+					.post(todoListBaseUrl)
 					.set("Authorization", newTestUser.token)
 					.send(testTodoListData);
 
 			testTodoList = newTodoListResponse.body;
-			rootUrl = `/api/todos/${testTodoList._id}/todo`;
 			authorizationToken = newTestUser.token;
 		});
 
@@ -39,13 +43,14 @@ describe("Todo routes", () => {
 				const testTodoData = {
 						description: "Test todo description"
 					},
+					todoBaseUrl = createTodoUrl(testTodoList._id),
 					newTodoResponse = await request(app)
-						.post(rootUrl)
+						.post(todoBaseUrl)
 						.set("Authorization", authorizationToken)
 						.send(testTodoData);
 
 				testTodo = newTodoResponse.body;
-				baseUrl = `${rootUrl}/${testTodo._id}`;
+				baseUrl = createTodoIdUrl(testTodoList._id, testTodo._id);
 			});
 
 			describe("Unauthorized requests", () => {
@@ -259,10 +264,12 @@ describe("Todo routes", () => {
 					});
 
 					it("should remove the todo from the corresponding todoList", async done => {
-						const correspondingTodoListUrl = `/api/todos/${testTodoList._id}`,
+						const todoListQueryUrl = createTodoListIdUrl(
+								testTodoList._id
+							),
 							{ body: newTodo } = response,
 							{ body: todoListAfterRequest } = await request(app)
-								.get(correspondingTodoListUrl)
+								.get(todoListQueryUrl)
 								.set("Authorization", authorizationToken),
 							isNewTodoRemoved = todoListAfterRequest.todos.every(
 								todo => todo._id !== newTodo._id
@@ -279,7 +286,7 @@ describe("Todo routes", () => {
 			let baseUrl;
 
 			beforeAll(() => {
-				baseUrl = `${rootUrl}/invalidID123`;
+				baseUrl = createTodoIdUrl(testTodoList._id, "invalidID123");
 			});
 
 			describe("Get request", () => {

@@ -1,6 +1,7 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{ todoListBaseUrl, createTodoUrl, createTodoListIdUrl } = require("../urls");
 
 describe("Todo routes", () => {
 	describe("/todos/:id/todo", () => {
@@ -13,8 +14,7 @@ describe("Todo routes", () => {
 		let baseUrl, testTodoList, authorizationToken;
 
 		beforeAll(async () => {
-			const todoListRouteUrl = "/api/todos",
-				testUserCredentials = {
+			const testUserCredentials = {
 					username: "todoTestUsername",
 					password: "todoTestPassword"
 				},
@@ -23,12 +23,12 @@ describe("Todo routes", () => {
 				},
 				newTestUser = await createTestUser(testUserCredentials),
 				newTodoListResponse = await request(app)
-					.post(todoListRouteUrl)
+					.post(todoListBaseUrl)
 					.set("Authorization", newTestUser.token)
 					.send(testTodoListData);
 
 			testTodoList = newTodoListResponse.body;
-			baseUrl = `/api/todos/${testTodoList._id}/todo`;
+			baseUrl = createTodoUrl(testTodoList._id);
 			authorizationToken = newTestUser.token;
 		});
 
@@ -91,10 +91,12 @@ describe("Todo routes", () => {
 					});
 
 					it("should add the new todo to the corresponding todoList", async () => {
-						const correspondingTodoListUrl = `/api/todos/${testTodoList._id}`,
+						const todoListQueryUrl = createTodoListIdUrl(
+								testTodoList._id
+							),
 							{ body: newTodo } = response,
 							{ body: todoListAfterRequest } = await request(app)
-								.get(correspondingTodoListUrl)
+								.get(todoListQueryUrl)
 								.set("Authorization", authorizationToken),
 							isNewTodoSaved = todoListAfterRequest.todos.some(
 								todo => todo.id === newTodo.id
