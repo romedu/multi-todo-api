@@ -16,7 +16,7 @@ describe("TodoList routes", () => {
 		authorizationToken = newTestUser.token;
 	});
 
-	describe("/todos/:id/download", () => {
+	describe("/todoList/:id/download", () => {
 		describe("Requesting a valid todolist id", () => {
 			let baseUrl;
 

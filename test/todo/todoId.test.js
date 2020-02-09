@@ -9,7 +9,7 @@ const request = require("supertest"),
 	} = require("../urls");
 
 describe("Todo routes", () => {
-	describe("/todos/:id/todo/:todoId", () => {
+	describe("/todoList/:id/todo/:todoId", () => {
 		const todoObjectSchema = {
 			_id: expect.any(String),
 			description: expect.any(String),

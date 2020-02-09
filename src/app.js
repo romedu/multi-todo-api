@@ -24,8 +24,8 @@ app.use(commonMiddlewares.serializeBody);
 if (!isTestingEnv) app.use(morgan("tiny"));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/todos/:id/todo", commonMiddlewares.checkIfToken, todoRoutes);
-app.use("/api/todos", commonMiddlewares.checkIfToken, todoListRoutes);
+app.use("/api/todoList/:id/todo", commonMiddlewares.checkIfToken, todoRoutes);
+app.use("/api/todoList", commonMiddlewares.checkIfToken, todoListRoutes);
 app.use("/api/folder", commonMiddlewares.checkIfToken, folderRoutes);
 app.use("/api/services", commonMiddlewares.checkIfToken, servicesRoutes);
 app.get("*", (req, res, next) => {

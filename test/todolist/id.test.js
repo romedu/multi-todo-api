@@ -4,7 +4,7 @@ const request = require("supertest"),
 	urls = require("../urls");
 
 describe("TodoList routes", () => {
-	describe("/todos/:id", () => {
+	describe("/todoList/:id", () => {
 		const todolistObjectSchema = {
 			_id: expect.any(String),
 			name: expect.any(String),
