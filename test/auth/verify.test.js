@@ -1,11 +1,10 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{ verifyBaseUrl } = require("../urls");
 
 describe("Auth routes", () => {
 	describe("Verify route", () => {
-		const baseUrl = "/api/auth/verify";
-
 		describe("Get request", () => {
 			describe("Authenticated request", () => {
 				let userData;
@@ -24,7 +23,7 @@ describe("Auth routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.get(baseUrl)
+							.get(verifyBaseUrl)
 							.set("Authorization", userData.token);
 					});
 
@@ -50,7 +49,7 @@ describe("Auth routes", () => {
 					beforeAll(async () => {
 						const invalidAuthToken = userData.token.substring(1);
 						response = await request(app)
-							.get(baseUrl)
+							.get(verifyBaseUrl)
 							.set("Authorization", invalidAuthToken);
 					});
 
@@ -62,7 +61,7 @@ describe("Auth routes", () => {
 
 			describe("Unauthenticated request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).get(baseUrl);
+					const response = await request(app).get(verifyBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
@@ -71,7 +70,7 @@ describe("Auth routes", () => {
 
 		describe("Post request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).post(baseUrl);
+				const response = await request(app).post(verifyBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -79,7 +78,7 @@ describe("Auth routes", () => {
 
 		describe("Put request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).put(baseUrl);
+				const response = await request(app).put(verifyBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -87,7 +86,7 @@ describe("Auth routes", () => {
 
 		describe("Patch request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).patch(baseUrl);
+				const response = await request(app).patch(verifyBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -95,7 +94,7 @@ describe("Auth routes", () => {
 
 		describe("Delete request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).delete(baseUrl);
+				const response = await request(app).delete(verifyBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});

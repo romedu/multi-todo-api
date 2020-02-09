@@ -1,6 +1,12 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{
+		folderBaseUrl,
+		todoListBaseUrl,
+		createFolderIdUrl,
+		createTodoListIdUrl
+	} = require("../urls");
 
 describe("Folder routes", () => {
 	describe("/folder/:id", () => {
@@ -27,18 +33,17 @@ describe("Folder routes", () => {
 			let testFolder, baseUrl;
 
 			beforeAll(async () => {
-				const rootUrl = "/api/folder",
-					testFolderData = {
+				const testFolderData = {
 						name: "folderName",
 						description: "Test folder description"
 					},
 					newFolderResponse = await request(app)
-						.post(rootUrl)
+						.post(folderBaseUrl)
 						.set("Authorization", authorizationToken)
 						.send(testFolderData);
 
 				testFolder = newFolderResponse.body;
-				baseUrl = `/api/folder/${testFolder._id}`;
+				baseUrl = createFolderIdUrl(testFolder._id);
 			});
 
 			describe("Unauthorized requests", () => {
@@ -238,7 +243,7 @@ describe("Folder routes", () => {
 									container: testFolder._id
 								},
 								testTodoList = await request(app)
-									.post("/api/todos")
+									.post(todoListBaseUrl)
 									.set("Authorization", authorizationToken)
 									.send(testTodoListData);
 
@@ -267,8 +272,11 @@ describe("Folder routes", () => {
 						});
 
 						it("should keep the todoLists contained in the folder", async done => {
-							const testListQueryResponse = await request(app)
-								.get(`/api/todos/${testTodoListId}`)
+							const testListQueryUrl = createTodoListIdUrl(
+								testTodoListId
+							);
+							testListQueryResponse = await request(app)
+								.get(testListQueryUrl)
 								.set("Authorization", authorizationToken);
 
 							expect(testListQueryResponse.status).toBe(200);
@@ -284,7 +292,7 @@ describe("Folder routes", () => {
 									name: "folderName"
 								},
 								testFolderResponse = await request(app)
-									.post("/api/folder")
+									.post(folderBaseUrl)
 									.set("Authorization", authorizationToken)
 									.send(testFolderData),
 								testTodoListData = {
@@ -292,13 +300,16 @@ describe("Folder routes", () => {
 									container: testFolderResponse.body._id
 								},
 								testTodoList = await request(app)
-									.post("/api/todos")
+									.post(todoListBaseUrl)
 									.set("Authorization", authorizationToken)
-									.send(testTodoListData);
+									.send(testTodoListData),
+								deleteTestKeepFolderIdUrl = createFolderIdUrl(
+									testFolderResponse.body._id
+								);
 
 							testTodoListId = testTodoList.body._id;
 							response = await request(app)
-								.delete(`/api/folder/${testFolderResponse.body._id}`)
+								.delete(deleteTestKeepFolderIdUrl)
 								.set("Authorization", authorizationToken);
 						});
 
@@ -320,9 +331,12 @@ describe("Folder routes", () => {
 						});
 
 						it("should remove the todoLists contained in the folder", async done => {
-							const testListQueryResponse = await request(app)
-								.post(`/api/todos/${testTodoListId}`)
-								.set("Authorization", authorizationToken);
+							const testTodoListQueryUrl = createTodoListIdUrl(
+									testTodoListId
+								),
+								testListQueryResponse = await request(app)
+									.post(testTodoListQueryUrl)
+									.set("Authorization", authorizationToken);
 
 							expect(testListQueryResponse.status).toBe(404);
 							done();
@@ -333,7 +347,7 @@ describe("Folder routes", () => {
 		});
 
 		describe("Requesting an invalid folder id", () => {
-			const baseUrl = "/api/folder/invalidID123";
+			const baseUrl = createFolderIdUrl("invalidID123");
 
 			describe("Get request", () => {
 				it("should return a status of 404", async done => {

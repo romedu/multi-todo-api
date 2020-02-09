@@ -1,17 +1,16 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	urls = require("../urls");
 
 describe("TodoList routes", () => {
-	describe("/todos/:id", () => {
-		const rootUrl = "/api/todos",
-			folderRootUrl = "/api/folder",
-			todolistObjectSchema = {
-				_id: expect.any(String),
-				name: expect.any(String),
-				todos: expect.any(Array),
-				creator: expect.any(String)
-			};
+	describe("/todoList/:id", () => {
+		const todolistObjectSchema = {
+			_id: expect.any(String),
+			name: expect.any(String),
+			todos: expect.any(Array),
+			creator: expect.any(String)
+		};
 
 		let authorizationToken, testTodoList, baseUrl;
 
@@ -25,7 +24,7 @@ describe("TodoList routes", () => {
 					name: "listContainer"
 				},
 				newTestFolderResponse = await request(app)
-					.post(folderRootUrl)
+					.post(urls.folderBaseUrl)
 					.set("Authorization", newTestUser.token)
 					.send(testFolderData),
 				testTodoListData = {
@@ -33,13 +32,13 @@ describe("TodoList routes", () => {
 					container: newTestFolderResponse.body._id
 				},
 				newTodoListResponse = await request(app)
-					.post(rootUrl)
+					.post(urls.todoListBaseUrl)
 					.set("Authorization", newTestUser.token)
 					.send(testTodoListData);
 
 			authorizationToken = newTestUser.token;
 			testTodoList = newTodoListResponse.body;
-			baseUrl = `${rootUrl}/${testTodoList._id}`;
+			baseUrl = urls.createTodoListIdUrl(testTodoList._id);
 		});
 
 		describe("Requesting a valid todolist id", () => {
@@ -212,7 +211,7 @@ describe("TodoList routes", () => {
 											name: "listContainer2"
 										},
 										newTestFolderResponse = await request(app)
-											.post(folderRootUrl)
+											.post(urls.folderBaseUrl)
 											.set("Authorization", authorizationToken)
 											.send(testFolderData);
 
@@ -233,11 +232,13 @@ describe("TodoList routes", () => {
 								});
 
 								it("should remove the todoList from the old container's files", async done => {
-									const oldFolderContainerQueryUrl = `/api/folder/${testTodoList.container}`,
-										oldFolderResponse = await request(app)
+									const oldFolderContainerQueryUrl = urls.createFolderIdUrl(
+											testTodoList.container
+										),
+										oldFolderQueryResponse = await request(app)
 											.get(oldFolderContainerQueryUrl)
 											.set("Authorization", authorizationToken),
-										isTodoListPulled = oldFolderResponse.body.files.every(
+										isTodoListPulled = oldFolderQueryResponse.body.files.every(
 											todoList => todoList._id !== testTodoList._id
 										);
 
@@ -246,7 +247,9 @@ describe("TodoList routes", () => {
 								});
 
 								it("should add the todoList to the new container's files", async done => {
-									const newFolderContainerQueryUrl = `/api/folder/${updateData.container}`,
+									const newFolderContainerQueryUrl = urls.createFolderIdUrl(
+											updateData.container
+										),
 										newFolderResponse = await request(app)
 											.get(newFolderContainerQueryUrl)
 											.set("Authorization", authorizationToken),
@@ -282,7 +285,9 @@ describe("TodoList routes", () => {
 								});
 
 								it("should remove the todoList from the old container's files", async done => {
-									const oldFolderContainerQueryUrl = `/api/folder/${testTodoList.container}`,
+									const oldFolderContainerQueryUrl = urls.createFolderIdUrl(
+											testTodoList.container
+										),
 										oldFolderResponse = await request(app)
 											.get(oldFolderContainerQueryUrl)
 											.set("Authorization", authorizationToken),
@@ -307,7 +312,7 @@ describe("TodoList routes", () => {
 											name: "listContainer3"
 										},
 										newTestFolderResponse = await request(app)
-											.post(folderRootUrl)
+											.post(urls.folderBaseUrl)
 											.set("Authorization", authorizationToken)
 											.send(testFolderData);
 
@@ -328,7 +333,9 @@ describe("TodoList routes", () => {
 								});
 
 								it("should add the todoList to the new container's files", async done => {
-									const newFolderContainerQueryUrl = `/api/folder/${updateData.container}`,
+									const newFolderContainerQueryUrl = urls.createFolderIdUrl(
+											updateData.container
+										),
 										newFolderResponse = await request(app)
 											.get(newFolderContainerQueryUrl)
 											.set("Authorization", authorizationToken),
@@ -373,9 +380,19 @@ describe("TodoList routes", () => {
 				});
 
 				describe("Delete request", () => {
-					let response;
+					let response, testTodoId;
 
 					beforeAll(async () => {
+						const testTodoData = {
+								description: "Test todo description"
+							},
+							todoBaseUrl = urls.createTodoUrl(testTodoList._id),
+							testTodoResponse = await request(app)
+								.post(todoBaseUrl)
+								.set("Authorization", authorizationToken)
+								.send(testTodoData);
+
+						testTodoId = testTodoResponse.body._id;
 						response = await request(app)
 							.delete(baseUrl)
 							.set("Authorization", authorizationToken);
@@ -389,7 +406,7 @@ describe("TodoList routes", () => {
 						expect(response.body.message).toBeDefined();
 					});
 
-					it("should remove the resource", async done => {
+					it("should remove the todoList", async done => {
 						const todolistQueryResponse = await request(app)
 							.get(baseUrl)
 							.set("Authorization", authorizationToken);
@@ -399,7 +416,9 @@ describe("TodoList routes", () => {
 					});
 
 					it("should pull the todoList from it's containing folder files", async done => {
-						const folderContainerQueryUrl = `/api/folder/${testTodoList.container}`,
+						const folderContainerQueryUrl = urls.createFolderIdUrl(
+								testTodoList.container
+							),
 							{ body: folderContainer } = await request(app)
 								.get(folderContainerQueryUrl)
 								.set("Authorization", authorizationToken),
@@ -410,12 +429,25 @@ describe("TodoList routes", () => {
 						expect(isTodoListPulled).toBe(true);
 						done();
 					});
+
+					it("should remove it's corresponding todos", async done => {
+						const testTodoQueryUrl = urls.createTodoIdUrl(
+								testTodoList._id,
+								testTodoId
+							),
+							testTodoQueryReponse = await request(app)
+								.get(testTodoQueryUrl)
+								.set("Authorization", authorizationToken);
+
+						expect(testTodoQueryReponse.status).toBe(404);
+						done();
+					});
 				});
 			});
 		});
 
 		describe("Requesting an invalid todolist id", () => {
-			const baseUrl = `${rootUrl}/invalidID123`;
+			const baseUrl = urls.createTodoListIdUrl("invalidID123");
 
 			describe("Get request", () => {
 				it("should return a status of 404", async done => {

@@ -3,6 +3,7 @@ const fs = require("fs"),
 	path = require("path"),
 	{ promisify } = require("util"),
 	{ TodoList, Todo } = require("../models"),
+	{ createTodoListTemplate } = require("../templates/todoList"),
 	fsMkdtempPromise = promisify(fs.mkdtemp),
 	fsWriteFilePromise = promisify(fs.writeFile);
 
@@ -117,15 +118,9 @@ exports.downloadFile = async (req, res, next) => {
 		let fileContent;
 
 		await currentList.populate(["todos", "container"]).execPopulate();
-
-		fileContent = `
-         ${currentList.container ? currentList.container.name : ""}
-         ${currentList.name}: 
-         
-         ${currentList.todos.map(todo => `• ${todo.description}`).join("\n")}
-      `;
-
+		fileContent = createTodoListTemplate(currentList);
 		await fsWriteFilePromise(tempFilePath, fileContent);
+
 		return res.download(tempFilePath);
 	} catch (error) {
 		return next(error);

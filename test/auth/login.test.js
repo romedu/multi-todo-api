@@ -1,14 +1,13 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{ loginBaseUrl } = require("../urls");
 
 describe("Auth routes", () => {
 	describe("Login route", () => {
-		const baseUrl = "/api/auth/login";
-
 		describe("Get request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).get(baseUrl);
+				const response = await request(app).get(loginBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -16,7 +15,7 @@ describe("Auth routes", () => {
 
 		describe("Put request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).put(baseUrl);
+				const response = await request(app).put(loginBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -24,7 +23,7 @@ describe("Auth routes", () => {
 
 		describe("Patch request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).patch(baseUrl);
+				const response = await request(app).patch(loginBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -32,7 +31,7 @@ describe("Auth routes", () => {
 
 		describe("Delete request", () => {
 			it("should return a status of 404", async done => {
-				const response = await request(app).delete(baseUrl);
+				const response = await request(app).delete(loginBaseUrl);
 				expect(response.status).toBe(404);
 				done();
 			});
@@ -53,7 +52,7 @@ describe("Auth routes", () => {
 
 				beforeAll(async () => {
 					response = await request(app)
-						.post(baseUrl)
+						.post(loginBaseUrl)
 						.send(testUserData);
 				});
 
@@ -92,7 +91,7 @@ describe("Auth routes", () => {
 							};
 
 							response = await request(app)
-								.post(baseUrl)
+								.post(loginBaseUrl)
 								.send(invalidUserData);
 						});
 
@@ -111,7 +110,7 @@ describe("Auth routes", () => {
 							};
 
 							response = await request(app)
-								.post(baseUrl)
+								.post(loginBaseUrl)
 								.send(invalidUserData);
 						});
 
@@ -131,7 +130,7 @@ describe("Auth routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.post(baseUrl)
+							.post(loginBaseUrl)
 							.send(invalidUserData);
 					});
 
