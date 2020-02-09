@@ -1,16 +1,16 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
-	{ createTestUser } = require("../utilities");
+	{ createTestUser } = require("../utilities"),
+	{ folderBaseUrl } = require("../urls");
 
 describe("Folder routes", () => {
 	describe("/folder", () => {
-		const baseUrl = "/api/folder",
-			folderObjectSchema = {
-				_id: expect.any(String),
-				name: expect.any(String),
-				files: expect.any(Array),
-				creator: expect.any(String)
-			};
+		const folderObjectSchema = {
+			_id: expect.any(String),
+			name: expect.any(String),
+			files: expect.any(Array),
+			creator: expect.any(String)
+		};
 
 		let userData, authorizationToken;
 
@@ -39,7 +39,7 @@ describe("Folder routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.get(baseUrl)
+							.get(folderBaseUrl)
 							.query(queryParams)
 							.set("Authorization", authorizationToken);
 					});
@@ -66,7 +66,7 @@ describe("Folder routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.get(baseUrl)
+							.get(folderBaseUrl)
 							.query(queryParams)
 							.set("Authorization", authorizationToken);
 					});
@@ -98,7 +98,7 @@ describe("Folder routes", () => {
 
 					beforeAll(async () => {
 						response = await request(app)
-							.post(baseUrl)
+							.post(folderBaseUrl)
 							.set("Authorization", authorizationToken)
 							.send(testFolderData);
 					});
@@ -115,7 +115,7 @@ describe("Folder routes", () => {
 
 					it("should save the new folder", async () => {
 						const { body: newFolder } = response,
-							findFolderUrl = `${baseUrl}/${newFolder._id}`,
+							findFolderUrl = `${folderBaseUrl}/${newFolder._id}`,
 							newFolderQueryResponse = await request(app)
 								.get(findFolderUrl)
 								.set("Authorization", authorizationToken);
@@ -153,7 +153,7 @@ describe("Folder routes", () => {
 
 						beforeAll(async () => {
 							response = await request(app)
-								.post(baseUrl)
+								.post(folderBaseUrl)
 								.set("Authorization", authorizationToken)
 								.send(testFolderData);
 						});
@@ -178,7 +178,7 @@ describe("Folder routes", () => {
 
 							beforeAll(async () => {
 								response = await request(app)
-									.post(baseUrl)
+									.post(folderBaseUrl)
 									.set("Authorization", authorizationToken)
 									.send(testFolderData);
 							});
@@ -204,7 +204,7 @@ describe("Folder routes", () => {
 
 							beforeAll(async () => {
 								response = await request(app)
-									.post(baseUrl)
+									.post(folderBaseUrl)
 									.set("Authorization", authorizationToken)
 									.send(testFolderData);
 							});
@@ -231,7 +231,7 @@ describe("Folder routes", () => {
 
 						beforeAll(async () => {
 							response = await request(app)
-								.post(baseUrl)
+								.post(folderBaseUrl)
 								.set("Authorization", authorizationToken)
 								.send(testFolderData);
 						});
@@ -251,7 +251,7 @@ describe("Folder routes", () => {
 			describe("Put request", () => {
 				it("should return a status of 404", async done => {
 					const response = await request(app)
-						.put(baseUrl)
+						.put(folderBaseUrl)
 						.set("Authorization", authorizationToken);
 
 					expect(response.status).toBe(404);
@@ -262,7 +262,7 @@ describe("Folder routes", () => {
 			describe("Patch request", () => {
 				it("should return a status of 404", async done => {
 					const response = await request(app)
-						.patch(baseUrl)
+						.patch(folderBaseUrl)
 						.set("Authorization", authorizationToken);
 
 					expect(response.status).toBe(404);
@@ -273,7 +273,7 @@ describe("Folder routes", () => {
 			describe("Delete request", () => {
 				it("should return a status of 404", async done => {
 					const response = await request(app)
-						.delete(baseUrl)
+						.delete(folderBaseUrl)
 						.set("Authorization", authorizationToken);
 
 					expect(response.status).toBe(404);
@@ -285,7 +285,7 @@ describe("Folder routes", () => {
 		describe("Unauthorized requests", () => {
 			describe("Get request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).get(baseUrl);
+					const response = await request(app).get(folderBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
@@ -293,7 +293,7 @@ describe("Folder routes", () => {
 
 			describe("Post request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).post(baseUrl);
+					const response = await request(app).post(folderBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
@@ -301,7 +301,7 @@ describe("Folder routes", () => {
 
 			describe("Patch request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).patch(baseUrl);
+					const response = await request(app).patch(folderBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
@@ -309,7 +309,7 @@ describe("Folder routes", () => {
 
 			describe("Delete request", () => {
 				it("should return a status of 401", async done => {
-					const response = await request(app).delete(baseUrl);
+					const response = await request(app).delete(folderBaseUrl);
 					expect(response.status).toBe(401);
 					done();
 				});
