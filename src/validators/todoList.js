@@ -16,7 +16,7 @@ exports.createTodoListValidators = [
 	).isAlphanumeric(),
 	check("image", "Image must be a string")
 		.isString()
-		.optional()
+		.optional({checkFalsy: true})
 ];
 
 exports.updateTodoListValidators = [
