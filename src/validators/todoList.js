@@ -34,7 +34,7 @@ exports.updateTodoListValidators = [
 		.optional(),
 	check("image", "Image must be a string")
 		.isString()
-		.optional()
+		.optional({checkFalsy: true})
 ];
 
 module.exports = exports;

@@ -33,7 +33,7 @@ exports.createFolderValidators = [
 exports.updateFolderValidators = [
 	check("name", "Name must be a string")
 		.isString()
-		.optional({checkFalsy: true}),
+		.optional(),
 	...commonFolderValidators
 ];
 
