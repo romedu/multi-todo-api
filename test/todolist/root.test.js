@@ -91,7 +91,8 @@ describe("TodoList routes", () => {
 			describe("Post request", () => {
 				describe("Sending valid data", () => {
 					const testTodoListData = {
-						name: "testListName"
+                  name: "testListName",
+                  image: ""
 					};
 
 					let response;
