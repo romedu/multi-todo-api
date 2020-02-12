@@ -91,7 +91,8 @@ describe("Folder routes", () => {
 				describe("Sending valid data", () => {
 					const testFolderData = {
 						name: "testFolderName",
-						description: "Test folder description"
+                  description: "Test folder description",
+                  image: ""
 					};
 
 					let response;

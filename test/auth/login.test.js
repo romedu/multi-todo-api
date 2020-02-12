@@ -81,6 +81,44 @@ describe("Auth routes", () => {
 
 			describe("Sending invalid data", () => {
 				describe("Sending one of the inputs invalid", () => {
+               describe("Passing a non-existent username", () => {
+                  let response;
+
+                  beforeAll(async () => {
+							const invalidUserData = {
+								...testUserData,
+								username: "inexistentUsername"
+							};
+
+							response = await request(app)
+								.post(loginBaseUrl)
+								.send(invalidUserData);
+                  });
+                  
+                  it("should return a status of 401", () => {
+							expect(response.status).toBe(401);
+						});
+               });
+
+               describe("Passing an incorrect password", () => {
+                  let response;
+
+                  beforeAll(async () => {
+							const invalidUserData = {
+								...testUserData,
+								password: "incorrectPassword"
+							};
+
+							response = await request(app)
+								.post(loginBaseUrl)
+								.send(invalidUserData);
+                  });
+                  
+                  it("should return a status of 401", () => {
+							expect(response.status).toBe(401);
+						});
+               });
+
 					describe("Passing an invalid username", () => {
 						let response;
 

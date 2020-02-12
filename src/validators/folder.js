@@ -11,14 +11,14 @@ const commonFolderValidators = [
 	).isAlphanumeric(),
 	check("description", "Description must be a string")
 		.isString()
-		.optional(),
+		.optional({checkFalsy: true}),
 	check(
 		"description",
 		"Description must contain a maximum of 100 characters"
-	).isLength({ max: 100 }),
+	).isLength({ max: 100 }).optional(),
 	check("image", "Image must be a string")
 		.isString()
-		.optional()
+		.optional({checkFalsy: true})
 ];
 
 exports.createFolderValidators = [

@@ -19,7 +19,7 @@ exports.login = async (req, res, next) => {
 	try {
 		const { username, password } = req.body,
 			user = await User.findOne({ username }),
-			isPasswordMatch = await user.comparePassword(password);
+			isPasswordMatch = user && await user.comparePassword(password);
 
 		if (isPasswordMatch) {
 			const signedUserData = signUser(user);

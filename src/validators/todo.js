@@ -8,7 +8,7 @@ exports.createTodoValidators = [
 	check("description", "Description must be a string").isString(),
 	check("checked", "Checked must be a boolean")
 		.isBoolean()
-		.optional()
+		.optional({checkFalsy: true})
 ];
 
 exports.updateTodoValidators = [
@@ -17,7 +17,7 @@ exports.updateTodoValidators = [
 		.optional(),
 	check("checked", "Checked must be a boolean")
 		.isBoolean()
-		.optional()
+		.optional({checkFalsy: true})
 ];
 
 module.exports = exports;

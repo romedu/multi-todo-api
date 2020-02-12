@@ -34,12 +34,10 @@ userSchema.pre("save", async function(next) {
 
 userSchema.methods.comparePassword = async function(passedPassword) {
 	try {
-		let compareResult = await bcrypt.compare(passedPassword, this.password);
-		if (!compareResult) throw new Error("Incorrect Username/Password");
+      const compareResult = await bcrypt.compare(passedPassword, this.password);
 		return compareResult;
 	} catch (error) {
-		error.status = 404;
-		return error;
+		throw error;
 	}
 };
 
