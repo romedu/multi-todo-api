@@ -42,20 +42,17 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
 	try {
-		const { currentTodo } = req.locals,
-			{ container, ...updateData } = req.body,
+		const { container, ...updateData } = req.body,
 			updateOptions = {
+            new: true,
 				omitUndefined: true,
 				runValidators: true
 			},
-			updatedTodo = {
-				currentTodo,
-				...updateData
-			};
-
-		await currentTodo.updateOne(updateData, updateOptions);
+         updatedTodo = await Todo.findByIdAndUpdate(req.params.todoId, updateData, updateOptions);
+         
 		return res.status(200).json(updatedTodo);
 	} catch (error) {
+      console.log("in here", error.message);
 		return next(error);
 	}
 };
