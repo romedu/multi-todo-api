@@ -1,5 +1,6 @@
 const request = require("supertest"),
 	app = require("../../src/app"),
+	{ createTestUser } = require("../utilities"),
 	{ registerBaseUrl } = require("../urls");
 
 describe("Auth routes", () => {
@@ -68,21 +69,29 @@ describe("Auth routes", () => {
 						tokenExp: expect.any(Number)
 					};
 
-					expect(response.body).toEqual(
-						expect.objectContaining(userObject)
-					);
+					expect(response.body).toEqual(expect.objectContaining(userObject));
 				});
 			});
 
 			describe("Sending invalid data", () => {
 				describe("Sending one of the inputs invalid", () => {
 					describe("Using a taken username", () => {
-						it("should return a status of 409", async done => {
-							const response = await request(app)
+						const newUserData = {
+							username: "testUsername2",
+							password: "testPassword2"
+						};
+
+						let response;
+
+						beforeAll(async () => {
+							await createTestUser(newUserData);
+							response = await request(app)
 								.post(registerBaseUrl)
-								.send(validTestUserData);
+								.send(newUserData);
+						});
+
+						it("should return a status of 409", () => {
 							expect(response.status).toBe(409);
-							done();
 						});
 					});
 
