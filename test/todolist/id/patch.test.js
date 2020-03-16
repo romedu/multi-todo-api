@@ -95,6 +95,19 @@ describe("PATCH /todoList/:id", () => {
 						it("should return the todolist with the updated data", () => {
 							expect(response.body).toMatchObject(updateData);
 						});
+
+						it("should keep the todoList inside of its container's files", async done => {
+							const folderContainerQueryUrl = urls.createFolderIdUrl(testTodoList.container),
+								{ body: folderContainer } = await request(app)
+									.get(folderContainerQueryUrl)
+									.set("Authorization", authorizationToken),
+								isTodoListInContainerFiles = folderContainer.files.some(
+									file => file._id === testTodoList._id
+								);
+
+							expect(isTodoListInContainerFiles).toBe(true);
+							done();
+						});
 					});
 
 					describe("Updating the container property", () => {
