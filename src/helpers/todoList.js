@@ -71,20 +71,17 @@ exports.update = async (req, res, next) => {
 				new: true,
 				runValidators: true,
 				omitUndefined: false
-			},
-			updatedList = await TodoList.findByIdAndUpdate(
-				currentList._id,
-				req.body,
-				options
-			);
+			};
 
-		await currentList.pullListFromContainer();
+		let updatedList;
 
 		if (listNewFolder) {
+			await currentList.pullListFromContainer();
 			listNewFolder.files.push(currentList._id);
 			await listNewFolder.save();
 		}
 
+		updatedList = await TodoList.findByIdAndUpdate(currentList._id, req.body, options);
 		return res.status(200).json(updatedList);
 	} catch (error) {
 		return next(error);
@@ -99,9 +96,7 @@ exports.delete = async (req, res, next) => {
 		await Todo.deleteMany({ container: currentList._id });
 		await currentList.delete();
 
-		return res
-			.status(200)
-			.json({ message: "Todo List Removed Successfully" });
+		return res.status(200).json({ message: "Todo List Removed Successfully" });
 	} catch (error) {
 		next(error);
 	}
