@@ -66,17 +66,18 @@ exports.findOne = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
 	try {
-		const { currentList, listNewFolder } = req.locals,
-			options = {
-				new: true,
-				runValidators: true,
-				omitUndefined: false
-			};
+		const { currentList, listNewFolder } = req.locals;
+		const isMovingFromFolder = req.body.container === null;
+		const options = {
+         new: true,
+         runValidators: true,
+         omitUndefined: false
+      };
 
 		let updatedList;
 
+		if (listNewFolder || isMovingFromFolder) await currentList.pullListFromContainer();
 		if (listNewFolder) {
-			await currentList.pullListFromContainer();
 			listNewFolder.files.push(currentList._id);
 			await listNewFolder.save();
 		}
