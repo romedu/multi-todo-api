@@ -1,5 +1,4 @@
-const { Folder, TodoList } = require("../models"),
-	{ errorHandler } = require("./error");
+const { Folder, TodoList } = require("../models");
 
 exports.find = async (req, res, next) => {
 	try {
@@ -52,11 +51,7 @@ exports.update = async (req, res, next) => {
 				new: true,
 				runValidators: true
 			},
-			updatedFolder = await Folder.findByIdAndUpdate(
-				req.params.id,
-				req.body,
-				options
-			);
+			updatedFolder = await Folder.findByIdAndUpdate(req.params.id, req.body, options);
 
 		return res.status(200).json(updatedFolder);
 	} catch (error) {
@@ -69,8 +64,7 @@ exports.delete = async (req, res, next) => {
 		const { currentFolder } = req.locals,
 			{ keep: keepFiles } = req.query;
 
-		if (currentFolder.files.length && !keepFiles)
-			await TodoList.deleteMany({ container: currentFolder._id });
+		if (currentFolder.files.length && !keepFiles) await TodoList.deleteMany({ container: currentFolder._id });
 
 		await currentFolder.delete();
 
